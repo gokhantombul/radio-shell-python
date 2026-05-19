@@ -81,9 +81,8 @@ class InteractiveShell:
         self.station_service = station_service
         self.completer = RadioCompleter(self, station_service)
         
-        # Define a consistent style for the UI elements
         self.style = Style.from_dict({
-            'bottom-toolbar': 'bg:#1a1a1a fg:#ffffff',  # Dark background, white default text
+            'bottom-toolbar': 'noinherit bg:#1e2030 fg:#9aa5ce',
         })
         
         self.session = PromptSession(
@@ -119,44 +118,50 @@ class InteractiveShell:
         ui.console.print("    [cyan]exit / q / quit     [/] - Uygulamadan çıkar")
 
     def _get_bottom_toolbar(self):
+        SEP = '  <ansibrightblack>│</ansibrightblack>  '
+
         if not self.player or not self.player.is_playing():
-            return HTML(' <ansired>■ Radyo: Durduruldu</ansired> ')
-        
+            return HTML('  <ansibrightblack>■  radyo durduruldu</ansibrightblack>  ')
+
         p = self.player
         s = p.current_station
-        
-        station_name = s.name if s else "Bilinmiyor"
-        country = s.country if s and s.country else "Bilinmiyor"
-        codec_info = f"{p.codec} ({p.sample_rate})" if p.codec and p.sample_rate else "..."
-        vol = f"{p.volume}%"
-        
-        # Elapsed time and Song Info logic
-        elapsed_str = "00:00"
+
+        station_name = (s.name[:30] + '…') if s and len(s.name) > 30 else (s.name if s else 'Bilinmiyor')
+        country = s.country if s and s.country else '—'
+        genre = s.genre if s and s.genre else ''
+
+        codec_parts = [x for x in (p.codec, p.bitrate, p.sample_rate) if x]
+        codec_str = '  '.join(codec_parts) if codec_parts else '—'
+
+        elapsed_str = '00:00'
         show_waiting_msg = True
         if p.playback_start_time:
             elapsed = datetime.now() - p.playback_start_time
             total_seconds = int(elapsed.total_seconds())
-            minutes = total_seconds // 60
-            seconds = total_seconds % 60
-            elapsed_str = f"{minutes:02d}:{seconds:02d}"
+            elapsed_str = f"{total_seconds // 60:02d}:{total_seconds % 60:02d}"
             if total_seconds >= 15:
                 show_waiting_msg = False
-        
-        song_part = ""
+
         if p.current_song:
-            song_part = f'<ansiwhite>•</ansiwhite>  <ansiyellow>🎵 {p.current_song}</ansiyellow>  '
+            song_title = (p.current_song[:45] + '…') if len(p.current_song) > 45 else p.current_song
+            song_part = f'{SEP}<ansiyellow>♫  {song_title}</ansiyellow>'
         elif show_waiting_msg:
-            song_part = f'<ansiwhite>•</ansiwhite>  <ansiyellow>🎵 şarkı bilgisi bekleniyor</ansiyellow>  '
-        
-        rec = " <ansired>● KAYIT</ansired>" if p.is_recording() else ""
-        
+            song_part = f'{SEP}<ansibrightblack>♫  şarkı bilgisi bekleniyor</ansibrightblack>'
+        else:
+            song_part = ''
+
+        genre_part = f'{SEP}{genre}' if genre else ''
+        rec_part = f'  <ansired>⏺  KAYIT</ansired>' if p.is_recording() else ''
+
         return HTML(
-            f' <ansicyan><b>📻 {station_name}</b></ansicyan>  '
+            f'  <ansicyan><b>▶  {station_name}</b></ansicyan>'
             f'{song_part}'
-            f'<ansiwhite>•</ansiwhite>  <ansigreen>🌍 {country}</ansigreen>  '
-            f'<ansiwhite>•</ansiwhite>  <ansimagenta>⚙️ {codec_info}</ansimagenta>  '
-            f'<ansiwhite>•</ansiwhite>  <ansibrightblue>🔊 {vol}</ansibrightblue>  '
-            f'<ansiwhite>•</ansiwhite>  <ansiwhite>⏱️ {elapsed_str}</ansiwhite>{rec} '
+            f'{SEP}{country}'
+            f'{genre_part}'
+            f'{SEP}{codec_str}'
+            f'{SEP}<ansibrightblue>◉  {p.volume}%</ansibrightblue>'
+            f'{SEP}◷  {elapsed_str}'
+            f'{rec_part}  '
         )
 
     def _get_prompt(self):
