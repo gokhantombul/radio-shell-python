@@ -14,17 +14,17 @@ class BasicCommands:
         self.player = player
         self.last_list = []
 
-        shell.register("listele", self.cmd_listele, "Tüm radyo istasyonlarını listeler")
-        shell.register("turkiye", self.cmd_turkiye, "Türkiye radyo istasyonlarını listeler")
-        shell.register("ulkeler", self.cmd_ulkeler, "Mevcut ülkeleri listeler")
-        shell.register("ulke", self.cmd_ulke, "Belirli bir ülkenin istasyonlarını listeler")
-        shell.register("turler", self.cmd_turler, "Mevcut müzik türlerini listeler")
-        shell.register("tur", self.cmd_tur, "Belirli bir müzik türündeki istasyonları listeler")
-        shell.register("ara", self.cmd_ara, "İstasyon arar (isim, ülke veya tür)")
-        shell.register("istatistik", self.cmd_istatistik, "Dinleme istatistiklerini gösterir")
-        shell.register("durum", self.cmd_durum, "Şu anki çalma durumunu gösterir")
-        shell.register("clear", self.cmd_temizle, "Terminal ekranını temizler")
-        shell.register("temizle", self.cmd_temizle, "Terminal ekranını temizler")
+        shell.register("listele", self.cmd_listele, "Tüm radyo istasyonlarını listeler", "İSTASYON LİSTELEME")
+        shell.register("turkiye", self.cmd_turkiye, "Türkiye radyo istasyonlarını listeler", "İSTASYON LİSTELEME")
+        shell.register("ulkeler", self.cmd_ulkeler, "Mevcut ülkeleri listeler", "İSTASYON LİSTELEME")
+        shell.register("ulke", self.cmd_ulke, "Belirli bir ülkenin istasyonlarını listeler", "İSTASYON LİSTELEME")
+        shell.register("turler", self.cmd_turler, "Mevcut müzik türlerini listeler", "İSTASYON LİSTELEME")
+        shell.register("tur", self.cmd_tur, "Belirli bir müzik türündeki istasyonları listeler", "İSTASYON LİSTELEME")
+        shell.register("ara", self.cmd_ara, "İstasyon arar (isim, ülke veya tür)", "İSTASYON LİSTELEME")
+        shell.register("istatistik", self.cmd_istatistik, "Dinleme istatistiklerini gösterir", "YÖNETİM")
+        shell.register("durum", self.cmd_durum, "Şu anki çalma durumunu gösterir", "OYNATMA")
+        shell.register("clear", self.cmd_temizle, "Terminal ekranını temizler", "YÖNETİM")
+        shell.register("temizle", self.cmd_temizle, "Terminal ekranını temizler", "YÖNETİM")
 
     def _update_last(self, stations: list):
         self.last_list = stations

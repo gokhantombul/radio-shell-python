@@ -61,14 +61,25 @@ def get_themes() -> List[str]:
     return list(THEMES.keys())
 
 def print_banner():
+    width = 66
     banner = f"""
-  ╔══════════════════════════════════════════════════════════════╗
-  ║   ♬  ░░░ RADIO SHELL ░░░  ♬                                  ║
-  ║   Terminal FM Radio Player - Türkiye & Dünya                 ║
-  ║   v2.0.0 | Python 3.14 + Rich                                ║
-  ╚══════════════════════════════════════════════════════════════╝
+  ╔{"═" * width}╗
+  ║{" " * 18} ♬  ░░░ RADIO SHELL ░░░  ♬ {" " * (width - 45)}║
+  ║{" " * 12} Terminal FM Radio Player - Türkiye & Dünya {" " * (width - 56)}║
+  ║{" " * 20} v2.0.0 | Python 3.14 + Rich {" " * (width - 41)}║
+  ╚{"═" * width}╝
 """
     console.print(Text(banner, style=current_theme.primary))
+
+def print_header(title: str):
+    width = 66
+    padding = (width - len(title) - 2) // 2
+    header = f"""
+  ╔{"═" * width}╗
+  ║{" " * padding} {title} {" " * (width - len(title) - padding - 2)}║
+  ╚{"═" * width}╝
+"""
+    console.print(Text(header, style=f"bold {current_theme.primary}"))
 
 def print_error(msg: str):
     console.print(f"[{current_theme.error}]⚠ {msg}[/]")
@@ -84,15 +95,26 @@ def print_station_table(title: str, stations: List[RadioStation]):
         print_info("Gösterilecek istasyon bulunamadı.")
         return
 
-    table = Table(title=title, box=box.ROUNDED, style=current_theme.secondary, header_style=f"bold {current_theme.primary}")
-    table.add_column("Fav", justify="center", width=3)
-    table.add_column("ID", style=current_theme.highlight)
-    table.add_column("İsim", style=current_theme.primary)
-    table.add_column("Ülke")
-    table.add_column("Tür")
+    # Modern and elegant table design
+    table = Table(
+        title=f"\n[bold {current_theme.primary}] {title} [/]",
+        box=box.DOUBLE_EDGE,
+        border_style=current_theme.secondary,
+        header_style=f"bold {current_theme.highlight}",
+        row_styles=["none", "dim"],
+        show_lines=False,
+        pad_edge=False,
+        collapse_padding=True
+    )
+
+    table.add_column("Fav", justify="center", style=f"bold {current_theme.highlight}", width=5)
+    table.add_column("ID", style=f"bold {current_theme.primary}", justify="right", width=6)
+    table.add_column("İstasyon İsmi", style="white", min_width=20)
+    table.add_column("Ülke", style=current_theme.primary, justify="left")
+    table.add_column("Müzik Türü", style=current_theme.secondary, justify="left")
 
     for s in stations:
-        fav_star = f"[{current_theme.highlight}]★[/]" if s.favorite else "☆"
+        fav_star = "★" if s.favorite else " "
         table.add_row(
             fav_star,
             s.id,
@@ -100,7 +122,9 @@ def print_station_table(title: str, stations: List[RadioStation]):
             s.country or "-",
             s.genre or "-"
         )
+    
     console.print(table)
+    console.print(f"  [dim]ℹ Toplam {len(stations)} istasyon listelendi.[/]\n")
 
 def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_recording: bool):
     content = f"[{current_theme.primary}]Radyo:[/] {station.name}\n"

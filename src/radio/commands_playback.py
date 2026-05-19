@@ -32,15 +32,15 @@ class PlaybackCommands:
                     self.song_history.pop(0)
         self.player.on_song_change = on_song
 
-        shell.register("cal", self.cmd_cal, "Bir radyo istasyonunu çalar (cal -i <id>)")
-        shell.register("son", self.cmd_son, "Son çalınan istasyonu çalar")
-        shell.register("dur", self.cmd_dur, "Çalan radyoyu durdurur")
-        shell.register("ses", self.cmd_ses, "Ses seviyesini ayarlar (0-100) (ses -s <değer>)")
-        shell.register("sonraki", self.cmd_sonraki, "Listedeki bir sonraki istasyona geçer")
-        shell.register("onceki", self.cmd_onceki, "Listedeki bir önceki istasyona geçer")
-        shell.register("karistir", self.cmd_karistir, "Rastgele bir istasyon çalar")
-        shell.register("uyku", self.cmd_uyku, "Uyku zamanlayıcısını başlatır (uyku -d <dakika> | uyku iptal)")
-        shell.register("gecmis", self.cmd_gecmis, "Son görülen şarkı bilgilerini listeler")
+        shell.register("cal", self.cmd_cal, "Bir radyo istasyonunu çalar (cal -i <id>)", "OYNATMA")
+        shell.register("son", self.cmd_son, "Son çalınan istasyonu çalar", "OYNATMA")
+        shell.register("dur", self.cmd_dur, "Çalan radyoyu durdurur", "OYNATMA")
+        shell.register("ses", self.cmd_ses, "Ses seviyesini ayarlar (0-100) (ses -s <değer>)", "OYNATMA")
+        shell.register("sonraki", self.cmd_sonraki, "Listedeki bir sonraki istasyona geçer", "OYNATMA")
+        shell.register("onceki", self.cmd_onceki, "Listedeki bir önceki istasyona geçer", "OYNATMA")
+        shell.register("karistir", self.cmd_karistir, "Rastgele bir istasyon çalar", "OYNATMA")
+        shell.register("uyku", self.cmd_uyku, "Uyku zamanlayıcısını başlatır (uyku -d <dakika> | uyku iptal)", "OYNATMA")
+        shell.register("gecmis", self.cmd_gecmis, "Son görülen şarkı bilgilerini listeler", "OYNATMA")
 
     def _record_session(self):
         if self.session_start and self.player.current_station:

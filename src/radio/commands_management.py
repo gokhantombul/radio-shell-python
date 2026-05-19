@@ -18,19 +18,19 @@ class ManagementCommands:
         self.player = player
         self.last_online_search: List[OnlineStation] = []
 
-        shell.register("favori", self.cmd_favori, "İstasyonu favorilere ekler/çıkarır")
-        shell.register("favoriler", self.cmd_favoriler, "Favori istasyonları listeler")
-        shell.register("kaydet", self.cmd_kaydet, "Çalan yayını kaydetmeye başlar")
-        shell.register("kayitdur", self.cmd_kayitdur, "Kaydı durdurur")
-        shell.register("tema", self.cmd_tema, "Renk temasını değiştirir")
-        shell.register("kontrol", self.cmd_kontrol, "İstasyon akış URL'lerini kontrol eder")
-        shell.register("ekle", self.cmd_ekle, "Yeni özel istasyon ekler")
-        shell.register("duzenle", self.cmd_duzenle, "Özel istasyonu düzenler")
-        shell.register("sil", self.cmd_sil, "Özel istasyonu siler")
-        shell.register("iceaktar", self.cmd_iceaktar, "Playlist dosyasından istasyon ekler")
-        shell.register("bildirim", self.cmd_bildirim, "Bildirimleri açar/kapatır")
-        shell.register("online-ara", self.cmd_online_ara, "RadioBrowser üzerinden istasyon arar")
-        shell.register("online-ekle", self.cmd_online_ekle, "Arama sonucundan istasyon ekler")
+        shell.register("favori", self.cmd_favori, "İstasyonu favorilere ekler/çıkarır", "YÖNETİM")
+        shell.register("favoriler", self.cmd_favoriler, "Favori istasyonları listeler", "YÖNETİM")
+        shell.register("kaydet", self.cmd_kaydet, "Çalan yayını kaydetmeye başlar", "KAYIT")
+        shell.register("kayitdur", self.cmd_kayitdur, "Kaydı durdurur", "KAYIT")
+        shell.register("tema", self.cmd_tema, "Renk temasını değiştirir", "YÖNETİM")
+        shell.register("kontrol", self.cmd_kontrol, "İstasyon akış URL'lerini kontrol eder", "YÖNETİM")
+        shell.register("ekle", self.cmd_ekle, "Yeni özel istasyon ekler", "YÖNETİM")
+        shell.register("duzenle", self.cmd_duzenle, "Özel istasyonu düzenler", "YÖNETİM")
+        shell.register("sil", self.cmd_sil, "Özel istasyonu siler", "YÖNETİM")
+        shell.register("iceaktar", self.cmd_iceaktar, "Playlist dosyasından istasyon ekler", "YÖNETİM")
+        shell.register("bildirim", self.cmd_bildirim, "Bildirimleri açar/kapatır", "YÖNETİM")
+        shell.register("online-ara", self.cmd_online_ara, "RadioBrowser üzerinden istasyon arar", "İSTASYON LİSTELEME")
+        shell.register("online-ekle", self.cmd_online_ekle, "Arama sonucundan istasyon ekler", "YÖNETİM")
 
     def cmd_favori(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="favori")

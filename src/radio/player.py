@@ -25,12 +25,18 @@ class AudioPlayer:
         self._monitor_thread: Optional[threading.Thread] = None
         self._watchdog_thread: Optional[threading.Thread] = None
         self.last_metadata_update: Optional[datetime] = None
+        self.playback_start_time: Optional[datetime] = None
+        self.codec: Optional[str] = None
+        self.sample_rate: Optional[str] = None
+        self.channels: Optional[str] = None
+        self.bitrate: Optional[str] = None
 
     def play(self, station: RadioStation, initial_volume: int):
         self.stop()
         self.current_station = station
         self.volume = initial_volume
         self.current_song = None
+        self.playback_start_time = datetime.now()
         self.last_metadata_update = None
         self._stop_event.clear()
 
@@ -113,6 +119,11 @@ class AudioPlayer:
 
         self.current_station = None
         self.current_song = None
+        self.codec = None
+        self.sample_rate = None
+        self.channels = None
+        self.bitrate = None
+        self.playback_start_time = None
 
         self.stop_recording()
 
@@ -168,6 +179,8 @@ class AudioPlayer:
             return
 
         icy_pattern = re.compile(r"StreamTitle\s*:\s*([^;]+)")
+        audio_pattern = re.compile(r"Stream #.*Audio: ([^,]+), ([^,]+), ([^,]+)")
+        bitrate_pattern = re.compile(r", ([0-9]+ [kK]b/s)")
 
         try:
             for line in iter(self.process.stderr.readline, ''):
@@ -176,6 +189,7 @@ class AudioPlayer:
                 if not line:
                     continue
 
+                # ICY Metadata check
                 match = icy_pattern.search(line)
                 if match:
                     title = match.group(1).strip()
@@ -189,5 +203,32 @@ class AudioPlayer:
                             self.notification_service.notify(self.current_station.name, title)
                         if self.on_song_change:
                             self.on_song_change(title)
+                    continue
+
+                # Audio stream info check
+                match_audio = audio_pattern.search(line)
+                if match_audio:
+                    codec_raw = match_audio.group(1).split(' ')[0].strip().upper()
+                    self.codec = "AAC" if "AAC" in codec_raw else codec_raw
+                    
+                    sample_hz = match_audio.group(2).strip()
+                    if "Hz" in sample_hz:
+                        try:
+                            hz_val = int(sample_hz.replace(" Hz", ""))
+                            if hz_val >= 1000:
+                                self.sample_rate = f"{hz_val / 1000:.1f} kHz".replace(".0 kHz", " kHz")
+                            else:
+                                self.sample_rate = sample_hz
+                        except ValueError:
+                            self.sample_rate = sample_hz
+                    else:
+                        self.sample_rate = sample_hz
+
+                    self.channels = match_audio.group(3).strip()
+                    
+                    # Try to find bitrate in the same line
+                    match_bitrate = bitrate_pattern.search(line)
+                    if match_bitrate:
+                        self.bitrate = match_bitrate.group(1).strip()
         except Exception:
             pass
