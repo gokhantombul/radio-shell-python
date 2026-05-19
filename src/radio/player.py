@@ -16,6 +16,7 @@ class AudioPlayer:
         self.notification_service = notification_service
         self.process: Optional[subprocess.Popen] = None
         self.record_process: Optional[subprocess.Popen] = None
+        self.current_record_path: Optional[str] = None
         self.current_station: Optional[RadioStation] = None
         self.current_song: Optional[str] = None
         self.volume: int = 100
@@ -158,6 +159,7 @@ class AudioPlayer:
             self.record_process = subprocess.Popen(
                 cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
+            self.current_record_path = filepath
             return f"Kayıt başladı: {filename}"
         except Exception as e:
             return f"Kayıt başlatılamadı: {e}"
@@ -166,14 +168,20 @@ class AudioPlayer:
         if not self.is_recording():
             return "Aktif kayıt yok."
 
+        saved_path = self.current_record_path
         try:
             self.record_process.terminate()
             self.record_process.wait(timeout=2)
         except Exception:
             if self.record_process:
                 self.record_process.kill()
+        
         self.record_process = None
-        return "Kayıt durduruldu ve kaydedildi."
+        self.current_record_path = None
+        
+        if saved_path:
+            return f"Kayıt durduruldu. Şuraya kaydedildi: {saved_path}"
+        return "Kayıt durduruldu."
 
     def is_recording(self) -> bool:
         return self.record_process is not None and self.record_process.poll() is None

@@ -141,7 +141,7 @@ class InteractiveShell:
         SEP = '  <ansibrightblack>│</ansibrightblack>  '
 
         if not self.player or not self.player.is_playing():
-            return HTML('  <ansibrightblack>■  radyo durduruldu</ansibrightblack>  ')
+            return HTML('  <ansibrightblack>⏹  radyo durduruldu</ansibrightblack>  ')
 
         p = self.player
         s = p.current_station
@@ -164,23 +164,23 @@ class InteractiveShell:
 
         if p.current_song:
             song_title = (p.current_song[:45] + '…') if len(p.current_song) > 45 else p.current_song
-            song_part = f'{SEP}<ansiyellow>♫  {song_title}</ansiyellow>'
+            song_part = f'{SEP}<ansiyellow>🎵  {song_title}</ansiyellow>'
         elif show_waiting_msg:
-            song_part = f'{SEP}<ansibrightblack>♫  şarkı bilgisi bekleniyor</ansibrightblack>'
+            song_part = f'{SEP}<ansibrightblack>🎵  şarkı bilgisi bekleniyor</ansibrightblack>'
         else:
             song_part = ''
 
-        genre_part = f'{SEP}{genre}' if genre else ''
-        rec_part = f'  <ansired>⏺  KAYIT</ansired>' if p.is_recording() else ''
+        genre_part = f'{SEP}🏷  {genre}' if genre else ''
+        rec_part = f'  <ansired>🔴  KAYIT</ansired>' if p.is_recording() else ''
 
         return HTML(
-            f'  <ansicyan><b>▶  {station_name}</b></ansicyan>'
+            f'  <ansicyan><b>📻  {station_name}</b></ansicyan>'
             f'{song_part}'
-            f'{SEP}{country}'
+            f'{SEP}🌍  {country}'
             f'{genre_part}'
-            f'{SEP}{codec_str}'
-            f'{SEP}<ansibrightblue>◉  {p.volume}%</ansibrightblue>'
-            f'{SEP}◷  {elapsed_str}'
+            f'{SEP}📡  {codec_str}'
+            f'{SEP}<ansibrightblue>🔊  {p.volume}%</ansibrightblue>'
+            f'{SEP}🕒  {elapsed_str}'
             f'{rec_part}  '
         )
 
