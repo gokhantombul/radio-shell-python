@@ -66,7 +66,7 @@ def print_banner():
   ╔{"═" * width}╗
   ║{" " * 18} ♬  ░░░ RADIO SHELL ░░░  ♬ {" " * (width - 45)}║
   ║{" " * 12} Terminal FM Radio Player - Türkiye & Dünya {" " * (width - 56)}║
-  ║{" " * 20} v2.0.0 | Python 3.14 + Rich {" " * (width - 41)}║
+  ║{" " * 20} v2.0.0 | Python 3.14 + Rich {" " * (width - 49)}║
   ╚{"═" * width}╝
 """
     console.print(Text(banner, style=current_theme.primary))
@@ -105,13 +105,13 @@ def print_station_table(title: str, stations: List[RadioStation]):
     title_upper = title.replace('i', 'İ').upper()
     print_header(title_upper)
 
-    # Modern and elegant table design
+    # Modern and elegant table design with thin row separators
     table = Table(
-        box=box.SIMPLE_HEAVY,
+        box=box.HORIZONTALS,
         border_style=current_theme.secondary,
         header_style=f"bold {current_theme.highlight}",
         row_styles=["none", "dim"],
-        show_lines=False,
+        show_lines=True,
         pad_edge=True,
         collapse_padding=True
     )
