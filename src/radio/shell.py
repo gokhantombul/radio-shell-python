@@ -7,6 +7,8 @@ from prompt_toolkit import PromptSession
 from prompt_toolkit.completion import Completer, Completion, WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.document import Document
+from prompt_toolkit.formatted_text import HTML
+from prompt_toolkit.styles import Style
 
 from src.radio import ui
 from src.radio.services.station_service import StationService
@@ -30,15 +32,15 @@ class RadioCompleter(Completer):
 
         # If empty or first word, complete command names
         if len(words) <= 1:
-            word = words[0] if words else ''
+            word = words[0].lower() if words else ''
             commands = list(self.shell.commands.keys()) + ["help", "exit", "q", "?", "listele"]
             for cmd in commands:
-                if cmd.startswith(word):
+                if word in cmd.lower():
                     yield Completion(cmd, start_position=-len(word))
             return
 
         cmd = words[0].lower()
-        last_word = words[-1]
+        last_word = words[-1].lower()
 
         # Context-aware completion based on command
         if cmd in ('cal', 'kontrol', 'favori', 'sil'):
@@ -48,7 +50,8 @@ class RadioCompleter(Completer):
                 yield Completion('-i', start_position=-len(last_word))
             else:
                 for s in self.station_service.get_all_stations():
-                    if s.id.startswith(last_word):
+                    # Match by ID or Name
+                    if last_word in s.id.lower() or last_word in s.name.lower():
                         yield Completion(s.id, start_position=-len(last_word), display_meta=s.name)
 
         elif cmd == 'ulke':
@@ -56,7 +59,7 @@ class RadioCompleter(Completer):
                 yield Completion('-i', start_position=-len(last_word))
             else:
                 for c in self.station_service.get_countries():
-                    if c.lower().startswith(last_word.lower()):
+                    if last_word in c.lower():
                         yield Completion(c, start_position=-len(last_word))
 
         elif cmd == 'tur':
@@ -64,12 +67,12 @@ class RadioCompleter(Completer):
                 yield Completion('-i', start_position=-len(last_word))
             else:
                 for g in self.station_service.get_genres():
-                    if g.lower().startswith(last_word.lower()):
+                    if last_word in g.lower():
                         yield Completion(g, start_position=-len(last_word))
 
         elif cmd == 'tema':
             for t in ui.get_themes():
-                if t.startswith(last_word):
+                if last_word in t.lower():
                     yield Completion(t, start_position=-len(last_word))
 
 class InteractiveShell:
@@ -77,7 +80,17 @@ class InteractiveShell:
         self.commands: Dict[str, ShellCommand] = {}
         self.station_service = station_service
         self.completer = RadioCompleter(self, station_service)
-        self.session = PromptSession(history=InMemoryHistory(), completer=self.completer)
+        
+        # Define a consistent style for the UI elements
+        self.style = Style.from_dict({
+            'bottom-toolbar': 'bg:#1a1a1a fg:#ffffff',  # Dark background, white default text
+        })
+        
+        self.session = PromptSession(
+            history=InMemoryHistory(), 
+            completer=self.completer,
+            style=self.style
+        )
         self.running = True
         self.player: Optional[AudioPlayer] = None
 
@@ -107,31 +120,62 @@ class InteractiveShell:
 
     def _get_bottom_toolbar(self):
         if not self.player or not self.player.is_playing():
-            return " [Radyo: Durduruldu] "
+            return HTML(' <ansired>■ Radyo: Durduruldu</ansired> ')
         
         p = self.player
         s = p.current_station
         
         station_name = s.name if s else "Bilinmiyor"
-        song = p.current_song if p.current_song else "şarkı bilgisi bekleniyor"
         country = s.country if s and s.country else "Bilinmiyor"
-        
         codec_info = f"{p.codec} ({p.sample_rate})" if p.codec and p.sample_rate else "..."
-        vol = f"vol: {p.volume}%"
+        vol = f"{p.volume}%"
         
-        # Elapsed time
+        # Elapsed time and Song Info logic
         elapsed_str = "00:00"
+        show_waiting_msg = True
         if p.playback_start_time:
             elapsed = datetime.now() - p.playback_start_time
             total_seconds = int(elapsed.total_seconds())
             minutes = total_seconds // 60
             seconds = total_seconds % 60
             elapsed_str = f"{minutes:02d}:{seconds:02d}"
+            if total_seconds >= 15:
+                show_waiting_msg = False
         
-        rec = " • [KAYIT]" if p.is_recording() else ""
+        song_part = ""
+        if p.current_song:
+            song_part = f'<ansiwhite>•</ansiwhite>  <ansiyellow>🎵 {p.current_song}</ansiyellow>  '
+        elif show_waiting_msg:
+            song_part = f'<ansiwhite>•</ansiwhite>  <ansiyellow>🎵 şarkı bilgisi bekleniyor</ansiyellow>  '
         
-        # Minimalist Design: ♬ ❯❯ Kral Pop ❮❮  •  şarkı bilgisi bekleniyor  •  Türkiye  •  AAC (44.1 kHz)  •  vol: 100%  •  02:45
-        return f" ♬ ❯❯ {station_name} ❮❮  •  {song}  •  {country}  •  {codec_info}  •  {vol}  •  {elapsed_str}{rec} "
+        rec = " <ansired>● KAYIT</ansired>" if p.is_recording() else ""
+        
+        return HTML(
+            f' <ansicyan><b>📻 {station_name}</b></ansicyan>  '
+            f'{song_part}'
+            f'<ansiwhite>•</ansiwhite>  <ansigreen>🌍 {country}</ansigreen>  '
+            f'<ansiwhite>•</ansiwhite>  <ansimagenta>⚙️ {codec_info}</ansimagenta>  '
+            f'<ansiwhite>•</ansiwhite>  <ansibrightblue>🔊 {vol}</ansibrightblue>  '
+            f'<ansiwhite>•</ansiwhite>  <ansiwhite>⏱️ {elapsed_str}</ansiwhite>{rec} '
+        )
+
+    def _get_prompt(self):
+        primary_color = ui.current_theme.primary
+        # Map rich colors to prompt_toolkit ansi colors roughly
+        # Defaulting to some safe ones if theme doesn't match perfectly
+        ansi_primary = "ansicyan" if primary_color == "cyan" else "ansigreen"
+        
+        if not self.player or not self.player.is_playing():
+            return HTML(f'<{ansi_primary}>📻 radio</{ansi_primary}> <ansired>❯</ansired> ')
+        
+        station = self.player.current_station
+        station_name = station.name if station else "Radyo"
+        song = self.player.current_song
+        
+        if song:
+            return HTML(f'<{ansi_primary}>📻 {station_name}</{ansi_primary}> <ansiyellow>({song})</ansiyellow> <ansired>❯</ansired> ')
+        else:
+            return HTML(f'<{ansi_primary}>📻 {station_name}</{ansi_primary}> <ansired>❯</ansired> ')
 
     def run(self, player: Optional[AudioPlayer] = None):
         self.player = player
@@ -144,7 +188,7 @@ class InteractiveShell:
         while self.running:
             try:
                 text = self.session.prompt(
-                    "radio> ", 
+                    message=self._get_prompt, 
                     bottom_toolbar=self._get_bottom_toolbar if self.player else None,
                     refresh_interval=1.0
                 ).strip()

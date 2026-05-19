@@ -72,59 +72,73 @@ def print_banner():
     console.print(Text(banner, style=current_theme.primary))
 
 def print_header(title: str):
-    width = 66
-    padding = (width - len(title) - 2) // 2
-    header = f"""
-  ╔{"═" * width}╗
-  ║{" " * padding} {title} {" " * (width - len(title) - padding - 2)}║
-  ╚{"═" * width}╝
-"""
-    console.print(Text(header, style=f"bold {current_theme.primary}"))
+    ui_text = Text()
+    ui_text.append(" ❯❯ ", style=f"bold {current_theme.highlight}")
+    ui_text.append(title, style=f"bold {current_theme.primary}")
+    ui_text.append(" ❮❮ ", style=f"bold {current_theme.highlight}")
+    
+    panel = Panel(
+        ui_text,
+        box=box.HORIZONTALS,
+        border_style=current_theme.secondary,
+        padding=(0, 2),
+        expand=False
+    )
+    console.print(panel)
 
 def print_error(msg: str):
-    console.print(f"[{current_theme.error}]⚠ {msg}[/]")
+    console.print(f"[{current_theme.error}]  ✘ {msg}[/]")
 
 def print_success(msg: str):
-    console.print(f"[{current_theme.success}]✓ {msg}[/]")
+    console.print(f"[{current_theme.success}]  ✔ {msg}[/]")
 
 def print_info(msg: str):
-    console.print(f"[{current_theme.highlight}]ℹ {msg}[/]")
+    console.print(f"[{current_theme.highlight}]  ℹ {msg}[/]")
 
 def print_station_table(title: str, stations: List[RadioStation]):
     if not stations:
         print_info("Gösterilecek istasyon bulunamadı.")
         return
 
+    # Unified header style with uppercase title
+    # Simple Turkish i -> İ conversion for better appearance
+    title_upper = title.replace('i', 'İ').upper()
+    print_header(title_upper)
+
     # Modern and elegant table design
     table = Table(
-        title=f"\n[bold {current_theme.primary}] {title} [/]",
-        box=box.DOUBLE_EDGE,
+        box=box.SIMPLE_HEAVY,
         border_style=current_theme.secondary,
         header_style=f"bold {current_theme.highlight}",
         row_styles=["none", "dim"],
         show_lines=False,
-        pad_edge=False,
+        pad_edge=True,
         collapse_padding=True
     )
 
-    table.add_column("Fav", justify="center", style=f"bold {current_theme.highlight}", width=5)
-    table.add_column("ID", style=f"bold {current_theme.primary}", justify="right", width=6)
-    table.add_column("İstasyon İsmi", style="white", min_width=20)
+    table.add_column("No", style="dim", justify="center", width=4)
+    table.add_column("ID", style="bold yellow", justify="right", width=20)
+    table.add_column("İstasyon İsmi", style="bold white", min_width=25)
     table.add_column("Ülke", style=current_theme.primary, justify="left")
     table.add_column("Müzik Türü", style=current_theme.secondary, justify="left")
+    table.add_column("Fav", justify="center")
 
-    for s in stations:
-        fav_star = "★" if s.favorite else " "
+    for idx, s in enumerate(stations, 1):
+        fav_icon = f"[{current_theme.highlight}]★[/]" if s.favorite else "[dim]☆[/]"
+        # Add a small radio icon before name for aesthetics
+        name_with_icon = f"📻 {s.name}"
+        
         table.add_row(
-            fav_star,
+            str(idx),
             s.id,
-            s.name,
+            name_with_icon,
             s.country or "-",
-            s.genre or "-"
+            s.genre or "-",
+            fav_icon
         )
     
     console.print(table)
-    console.print(f"  [dim]ℹ Toplam {len(stations)} istasyon listelendi.[/]\n")
+    console.print(f"  [dim]Toplam {len(stations)} istasyon listelendi.[/]\n")
 
 def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_recording: bool):
     content = f"[{current_theme.primary}]Radyo:[/] {station.name}\n"
