@@ -12,6 +12,7 @@ from rich import box
 from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 
 from src.radio.models import RadioStation
+from src.radio.services.localization_service import L
 
 # Use global console
 console = Console()
@@ -65,10 +66,13 @@ def get_themes() -> List[str]:
 
 def print_banner():
     width = 66
+    app_title = L.get("app_title")
+    padding_title = (width - len(app_title) - 10) // 2
+    
     banner = f"""
   ╔{"═" * width}╗
   ║{" " * 18} ♬  ░░░ RADIO SHELL ░░░  ♬ {" " * (width - 45)}║
-  ║{" " * 12} Terminal FM Radio Player - Türkiye & Dünya {" " * (width - 56)}║
+  ║{" " * max(0, padding_title)} {app_title} {" " * max(0, width - len(app_title) - padding_title - 2)}║
   ║{" " * 20} v2.0.0 | Python 3.14 + Rich {" " * (width - 49)}║
   ╚{"═" * width}╝
 """
@@ -102,7 +106,7 @@ def show_connecting_progress(station_name: str):
     """Displays a modern connecting progress bar animation."""
     with Progress(
         SpinnerColumn(),
-        TextColumn(f"[bold {current_theme.primary}]Bağlanıyor:[/] [white]{{task.fields[name]}}[/]"),
+        TextColumn(f"[bold {current_theme.primary}]{L.get('connecting')}[/] [white]{{task.fields[name]}}[/]"),
         BarColumn(bar_width=40, complete_style=current_theme.primary, finished_style=current_theme.success),
         TaskProgressColumn(),
         console=console,
@@ -116,13 +120,11 @@ def show_connecting_progress(station_name: str):
 
 def print_station_table(title: str, stations: List[RadioStation], subtitle: str = None):
     if not stations:
-        print_info("Gösterilecek istasyon bulunamadı.")
+        print_info(L.get("no_stations"))
         return
 
     # Unified header style with uppercase title
-    # Simple Turkish i -> İ conversion for better appearance
-    title_upper = title.replace('i', 'İ').upper()
-    print_header(title_upper)
+    print_header(title.upper())
 
     # Modern and elegant table design with thin row separators
     table = Table(
@@ -135,12 +137,12 @@ def print_station_table(title: str, stations: List[RadioStation], subtitle: str 
         collapse_padding=True
     )
 
-    table.add_column("No", style="dim", justify="center", width=4)
-    table.add_column("ID", style="bold yellow", justify="right", width=20)
-    table.add_column("İstasyon İsmi", style="bold white", min_width=25)
-    table.add_column("Ülke", style=current_theme.primary, justify="left")
-    table.add_column("Müzik Türü", style=current_theme.secondary, justify="left")
-    table.add_column("Fav", justify="center")
+    table.add_column(L.get("no"), style="dim", justify="center", width=4)
+    table.add_column(L.get("id"), style="bold yellow", justify="right", width=20)
+    table.add_column(L.get("name"), style="bold white", min_width=25)
+    table.add_column(L.get("country"), style=current_theme.primary, justify="left")
+    table.add_column(L.get("genre"), style=current_theme.secondary, justify="left")
+    table.add_column(L.get("fav"), justify="center")
 
     for idx, s in enumerate(stations, 1):
         fav_icon = f"[{current_theme.highlight}]★[/]" if s.favorite else "[dim]☆[/]"
@@ -157,26 +159,26 @@ def print_station_table(title: str, stations: List[RadioStation], subtitle: str 
         )
     
     console.print(table)
-    console.print(f"  [dim]Toplam {len(stations)} istasyon listelendi.[/]")
+    console.print(f"  [dim]{L.get('total_stations', count=len(stations))}[/]")
     if subtitle:
         console.print(f"  [{current_theme.highlight}]ℹ  {subtitle}[/]")
     console.print()
 
 def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_recording: bool):
-    content = f"[{current_theme.primary}]Radyo:[/] {station.name}\n"
-    content += f"[{current_theme.primary}]Ülke:[/] {station.country or '-'}\n"
-    content += f"[{current_theme.primary}]Tür:[/] {station.genre or '-'}\n"
+    content = f"[{current_theme.primary}]{L.get('station')}:[/] {station.name}\n"
+    content += f"[{current_theme.primary}]{L.get('country')}:[/] {station.country or '-'}\n"
+    content += f"[{current_theme.primary}]{L.get('genre')}:[/] {station.genre or '-'}\n"
 
     if song:
-        content += f"[{current_theme.highlight}]Şarkı:[/] {song}\n"
+        content += f"[{current_theme.highlight}]{L.get('song')}:[/] {song}\n"
 
-    content += f"[{current_theme.secondary}]Ses:[/] %{volume}"
+    content += f"[{current_theme.secondary}]{L.get('volume')}:[/] %{volume}"
     if is_recording:
-        content += f" | [{current_theme.error}]● KAYIT YAPILIYOR[/]"
+        content += f" | [{current_theme.error}]● {L.get('recording')}[/]"
 
     panel = Panel(
         content,
-        title=f"[{current_theme.highlight}]♬ Çalıyor[/]",
+        title=f"[{current_theme.highlight}]♬ {L.get('now_playing')}[/]",
         border_style=current_theme.primary,
         box=box.ROUNDED,
         padding=(1, 2)

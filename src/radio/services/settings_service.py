@@ -31,6 +31,13 @@ class SettingsService:
         self.settings = self.settings.with_notifications_enabled(enabled)
         self.save()
 
+    def get_language(self) -> str:
+        return self.settings.language
+
+    def set_language(self, language: str):
+        self.settings = self.settings.with_language(language)
+        self.save()
+
     def load(self):
         path = self.config.settings_file
         if not path or not os.path.exists(path):
@@ -41,7 +48,8 @@ class SettingsService:
                 self.settings = UserSettings(
                     volume=data.get('volume', 100),
                     lastStationId=data.get('lastStationId'),
-                    notificationsEnabled=data.get('notificationsEnabled', True)
+                    notificationsEnabled=data.get('notificationsEnabled', True),
+                    language=data.get('language', 'en')
                 )
         except Exception:
             pass
@@ -57,7 +65,8 @@ class SettingsService:
                 data = {
                     'volume': self.settings.volume,
                     'lastStationId': self.settings.lastStationId,
-                    'notificationsEnabled': self.settings.notificationsEnabled
+                    'notificationsEnabled': self.settings.notificationsEnabled,
+                    'language': self.settings.language
                 }
                 json.dump(data, f, indent=2)
         except Exception:

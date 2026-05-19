@@ -11,6 +11,7 @@ from src.radio.services.settings_service import SettingsService
 from src.radio.services.statistics_service import StatisticsService
 from src.radio.player import AudioPlayer
 from src.radio import ui
+from src.radio.services.localization_service import L
 
 class PlaybackCommands:
     def __init__(self, shell: InteractiveShell, station_service: StationService, settings_service: SettingsService, stats_service: StatisticsService, player: AudioPlayer, basic_cmds):
@@ -32,15 +33,15 @@ class PlaybackCommands:
                     self.song_history.pop(0)
         self.player.on_song_change = on_song
 
-        shell.register("cal", self.cmd_cal, "Bir radyo istasyonunu çalar (cal -i <id>)", "OYNATMA")
-        shell.register("son", self.cmd_son, "Son çalınan istasyonu çalar", "OYNATMA")
-        shell.register("dur", self.cmd_dur, "Çalan radyoyu durdurur", "OYNATMA")
-        shell.register("ses", self.cmd_ses, "Ses seviyesini ayarlar (0-100) (ses -s <değer>)", "OYNATMA")
-        shell.register("sonraki", self.cmd_sonraki, "Listedeki bir sonraki istasyona geçer", "OYNATMA")
-        shell.register("onceki", self.cmd_onceki, "Listedeki bir önceki istasyona geçer", "OYNATMA")
-        shell.register("karistir", self.cmd_karistir, "Rastgele bir istasyon çalar", "OYNATMA")
-        shell.register("uyku", self.cmd_uyku, "Uyku zamanlayıcısını başlatır (uyku -d <dakika> | uyku iptal)", "OYNATMA")
-        shell.register("gecmis", self.cmd_gecmis, "Son görülen şarkı bilgilerini listeler", "OYNATMA")
+        shell.register("cal", self.cmd_cal, "cmd_cal_desc", "cat_playback")
+        shell.register("son", self.cmd_son, "cmd_son_desc", "cat_playback")
+        shell.register("dur", self.cmd_dur, "cmd_durdur_desc", "cat_playback")
+        shell.register("ses", self.cmd_ses, "cmd_ses_desc", "cat_playback")
+        shell.register("sonraki", self.cmd_sonraki, "cmd_sonraki_desc", "cat_playback")
+        shell.register("onceki", self.cmd_onceki, "cmd_onceki_desc", "cat_playback")
+        shell.register("karistir", self.cmd_karistir, "cmd_karistir_desc", "cat_playback")
+        shell.register("uyku", self.cmd_uyku, "cmd_uyku_desc", "cat_playback")
+        shell.register("gecmis", self.cmd_gecmis, "cmd_gecmis_desc", "cat_playback")
 
     def _record_session(self):
         if self.session_start and self.player.current_station:
@@ -54,7 +55,7 @@ class PlaybackCommands:
         self.player.play(station, self.settings_service.get_volume())
         self.settings_service.set_last_station_id(station.id)
         self.session_start = datetime.now()
-        ui.print_success(f"Çalınıyor: {station.name}")
+        ui.print_success(L.get("msg_playing", name=station.name))
 
     def cmd_cal(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="cal")
@@ -63,27 +64,27 @@ class PlaybackCommands:
             parsed = parser.parse_args(args)
             station = self.station_service.get_station(parsed.id)
             if not station:
-                ui.print_error(f"İstasyon bulunamadı: {parsed.id}")
+                ui.print_error(L.get("msg_station_not_found") + f": {parsed.id}")
                 return
             self.play_station(station)
         except SystemExit:
-            ui.print_error("Kullanım: cal -i <id>")
+            ui.print_error("Usage: cal -i <id>")
 
     def cmd_son(self, args: List[str]):
         last_id = self.settings_service.get_last_station_id()
         if not last_id:
-            ui.print_error("Son çalınan istasyon kaydı yok.")
+            ui.print_error(L.get("msg_no_last_station"))
             return
         station = self.station_service.get_station(last_id)
         if not station:
-            ui.print_error("Son çalınan istasyon artık bulunmuyor.")
+            ui.print_error(L.get("msg_last_station_missing"))
             return
         self.play_station(station)
 
     def cmd_dur(self, args: List[str]):
         self._record_session()
         self.player.stop()
-        ui.print_success("Oynatma durduruldu.")
+        ui.print_success(L.get("msg_stop_playing"))
 
     def cmd_ses(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="ses")
@@ -93,17 +94,17 @@ class PlaybackCommands:
             vol = max(0, min(100, parsed.seviye))
             self.settings_service.set_volume(vol)
             self.player.set_volume(vol)
-            ui.print_success(f"Ses seviyesi ayarlandı: %{vol}")
+            ui.print_success(L.get("msg_vol_set", vol=vol))
         except SystemExit:
-            ui.print_error("Kullanım: ses -s <0-100>")
+            ui.print_error("Usage: ses -s <0-100>")
 
     def _get_adjacent(self, offset: int):
         last_list = self.basic_cmds.last_list
         if not last_list:
-            ui.print_error("Önce bir liste oluşturun (örn: listele, turkiye).")
+            ui.print_error(L.get("msg_need_list"))
             return
         if not self.player.current_station:
-            ui.print_error("Şu an çalan bir istasyon yok.")
+            ui.print_error(L.get("msg_no_playing_station"))
             return
 
         try:
@@ -111,7 +112,7 @@ class PlaybackCommands:
             next_idx = (idx + offset) % len(last_list)
             self.play_station(last_list[next_idx])
         except StopIteration:
-            ui.print_error("Mevcut istasyon son listede bulunamadı.")
+            ui.print_error(L.get("msg_station_not_in_list"))
 
     def cmd_sonraki(self, args: List[str]):
         self._get_adjacent(1)
@@ -132,7 +133,7 @@ class PlaybackCommands:
                 stations = [s for s in stations if s.genre and parsed.tur.lower() in s.genre.lower()]
 
             if not stations:
-                ui.print_error("Kriterlere uygun istasyon bulunamadı.")
+                ui.print_error(L.get("msg_no_match"))
                 return
 
             station = random.choice(stations)
@@ -145,9 +146,9 @@ class PlaybackCommands:
             if self.sleep_timer:
                 self.sleep_timer.cancel()
                 self.sleep_timer = None
-                ui.print_success("Uyku zamanlayıcısı iptal edildi.")
+                ui.print_success(L.get("msg_sleep_cancel"))
             else:
-                ui.print_info("Aktif uyku zamanlayıcısı yok.")
+                ui.print_info(L.get("msg_no_sleep"))
             return
 
         parser = argparse.ArgumentParser(prog="uyku")
@@ -159,18 +160,18 @@ class PlaybackCommands:
 
             def stop_playback():
                 self.cmd_dur([])
-                ui.print_info("Uyku zamanlayıcısı süresi doldu, oynatma durduruldu.")
+                ui.print_info(L.get("msg_sleep_done"))
 
             self.sleep_timer = threading.Timer(parsed.dakika * 60.0, stop_playback)
             self.sleep_timer.start()
-            ui.print_success(f"Uyku zamanlayıcısı ayarlandı: {parsed.dakika} dakika sonra duracak.")
+            ui.print_success(L.get("msg_sleep_set", min=parsed.dakika))
         except SystemExit:
-            ui.print_error("Kullanım: uyku -d <dakika> VEYA uyku iptal")
+            ui.print_error("Usage: uyku -d <minutes> OR uyku iptal")
 
     def cmd_gecmis(self, args: List[str]):
         if not self.song_history:
-            ui.print_info("Henüz şarkı geçmişi yok.")
+            ui.print_info(L.get("msg_no_history"))
             return
-        ui.console.print("[cyan]Son çalınan şarkılar:[/]")
+        ui.console.print(f"[cyan]{L.get('msg_recent_songs')}[/]")
         for i, s in enumerate(reversed(self.song_history[-10:]), 1):
             ui.console.print(f"  {i}. {s}")
