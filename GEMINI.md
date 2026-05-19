@@ -50,6 +50,3 @@ User data is stored in `~/.radio-shell/`:
 *   `custom-stations.json`: User-defined radio stations.
 *   `settings.json`: Volume, last station, etc.
 *   `recordings/`: Directory for MP3 captures.
-
-## Legacy Context
-This project was previously a Java Spring Shell application. Some artifacts like `target/`, `pom.xml`, or `org/` directory might still exist but the Python implementation in `src/radio/` is the current source of truth.

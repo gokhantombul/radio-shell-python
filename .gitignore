@@ -54,14 +54,3 @@ Thumbs.db
 # Project Specific
 *.log
 recordings/
-
-# Legacy Java (Mentioned in GEMINI.md)
-target/
-*.class
-*.jar
-*.war
-*.ear
-.factorypath
-.project
-.settings/
-.classpath
