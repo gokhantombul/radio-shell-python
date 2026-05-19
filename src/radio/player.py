@@ -146,8 +146,12 @@ class AudioPlayer:
         filepath = os.path.join(self.config.recordings_dir, filename)
 
         cmd = [
-            "ffmpeg", "-y", "-i", self.current_station.url,
-            "-c", "copy", filepath
+            "ffmpeg", "-y",
+            "-user_agent", "VLC/3.0.16 LibVLC/3.0.16",
+            "-reconnect", "1", "-reconnect_at_eof", "1", "-reconnect_streamed", "1", "-reconnect_delay_max", "5",
+            "-i", self.current_station.url,
+            "-c:a", "libmp3lame", "-b:a", "128k",
+            filepath
         ]
 
         try:

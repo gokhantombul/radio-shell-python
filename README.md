@@ -329,7 +329,7 @@ radio-shell-python/
 | REPL / Tamamlama | prompt_toolkit |
 | Terminal UI | rich |
 | Ses Oynatıcı | ffplay (ffmpeg) |
-| Kayıt | ffmpeg `-c copy` |
+| Kayıt | ffmpeg (transcode to mp3) |
 | Online Arama | radio-browser.info API |
 | Sistem Bilgisi | psutil |
 | Container | Docker (multi-stage) |
@@ -638,7 +638,7 @@ radio-shell-python/
 | REPL / Completion | prompt_toolkit |
 | Terminal UI | rich |
 | Audio Player | ffplay (ffmpeg) |
-| Recording | ffmpeg `-c copy` |
+| Recording | ffmpeg (transcode to mp3) |
 | Online Search | radio-browser.info API |
 | System Info | psutil |
 | Container | Docker (multi-stage) |
