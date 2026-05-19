@@ -16,7 +16,8 @@ class BasicCommands:
         self.player = player
         self.last_list = []
 
-        shell.register("listele", self.cmd_listele, "Tüm radyo istasyonlarını listeler", "İSTASYON LİSTELEME")
+        shell.register("listele", self.cmd_listele, "Tüm radyo istasyonlarını listeler", "İSTASYON LİSTELEME",
+                       hint="Varsayılan ilk 50 gösterir. Özel adet: listele -n SAYI  ·  Tümü: listele --hepsi")
         shell.register("turkiye", self.cmd_turkiye, "Türkiye radyo istasyonlarını listeler", "İSTASYON LİSTELEME")
         shell.register("ulkeler", self.cmd_ulkeler, "Mevcut ülkeleri listeler", "İSTASYON LİSTELEME")
         shell.register("ulke", self.cmd_ulke, "Belirli bir ülkenin istasyonlarını listeler", "İSTASYON LİSTELEME")
@@ -33,9 +34,29 @@ class BasicCommands:
         self.last_list = stations
 
     def cmd_listele(self, args: List[str]):
+        parser = argparse.ArgumentParser(prog='listele', add_help=False)
+        parser.add_argument('-n', type=int, default=50, metavar='SAYI')
+        parser.add_argument('--hepsi', action='store_true')
+        try:
+            parsed = parser.parse_args(args)
+        except SystemExit:
+            ui.print_error("Kullanım: listele [-n SAYI] [--hepsi]")
+            return
+
         stations = self.station_service.get_all_stations()
-        self._update_last(stations)
-        ui.print_station_table("Tüm İstasyonlar", stations)
+        total = len(stations)
+
+        if parsed.hepsi:
+            shown = stations
+            subtitle = None
+        else:
+            limit = parsed.n
+            shown = stations[:limit]
+            subtitle = (f"İlk {limit} istasyon gösteriliyor (toplam {total}). "
+                        f"Özel adet: listele -n SAYI | Tümü için: listele --hepsi") if total > limit else None
+
+        self._update_last(shown)
+        ui.print_station_table("Tüm İstasyonlar", shown, subtitle=subtitle)
 
     def cmd_turkiye(self, args: List[str]):
         stations = [s for s in self.station_service.get_all_stations() if s.country and s.country.lower() in ("türkiye", "turkey")]

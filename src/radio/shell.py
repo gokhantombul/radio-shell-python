@@ -15,11 +15,12 @@ from src.radio.services.station_service import StationService
 from src.radio.player import AudioPlayer
 
 class ShellCommand:
-    def __init__(self, name: str, func: Callable, desc: str, category: str = "DİĞER"):
+    def __init__(self, name: str, func: Callable, desc: str, category: str = "DİĞER", hint: str = ""):
         self.name = name
         self.func = func
         self.desc = desc
         self.category = category
+        self.hint = hint
 
 class RadioCompleter(Completer):
     def __init__(self, shell: 'InteractiveShell', station_service: StationService):
@@ -33,7 +34,7 @@ class RadioCompleter(Completer):
         # If empty or first word, complete command names
         if len(words) <= 1:
             word = words[0].lower() if words else ''
-            commands = list(self.shell.commands.keys()) + ["help", "exit", "q", "?", "listele"]
+            commands = list(self.shell.commands.keys()) + ["help", "exit", "q", "?"]
             for cmd in commands:
                 if word in cmd.lower():
                     yield Completion(cmd, start_position=-len(word))
@@ -82,7 +83,14 @@ class InteractiveShell:
         self.completer = RadioCompleter(self, station_service)
         
         self.style = Style.from_dict({
-            'bottom-toolbar': 'noinherit bg:#1e2030 fg:#9aa5ce',
+            'bottom-toolbar':                         'noinherit bg:#1e2030 fg:#9aa5ce',
+            'completion-menu':                        'bg:#0d1117 fg:#7ee787',
+            'completion-menu.completion':             'bg:#0d1117 fg:#7ee787',
+            'completion-menu.completion.current':     'bg:#1a2e1a fg:#b9f4b9 bold',
+            'completion-menu.meta.completion':        'bg:#0d1117 fg:#4a8a4a',
+            'completion-menu.meta.completion.current':'bg:#1a2e1a fg:#7ee787',
+            'scrollbar.background':                   'bg:#0d1117',
+            'scrollbar.button':                       'bg:#2a4a2a',
         })
         
         self.session = PromptSession(
@@ -93,26 +101,38 @@ class InteractiveShell:
         self.running = True
         self.player: Optional[AudioPlayer] = None
 
-    def register(self, name: str, func: Callable, desc: str, category: str = "DİĞER"):
-        self.commands[name] = ShellCommand(name, func, desc, category)
+    def register(self, name: str, func: Callable, desc: str, category: str = "DİĞER", hint: str = ""):
+        self.commands[name] = ShellCommand(name, func, desc, category, hint)
 
     def print_help(self):
         ui.print_header("KOMUT LİSTESİ")
-        
-        categories = {
-            "İSTASYON LİSTELEME": ["listele", "turkiye", "ulkeler", "ulke", "turler", "tur", "ara", "online-ara"],
-            "OYNATMA": ["cal", "son", "dur", "durum", "ses", "sonraki", "onceki", "karistir", "uyku", "gecmis"],
-            "KAYIT": ["kaydet", "kayitdur"],
-            "YÖNETİM": ["favori", "favoriler", "ekle", "duzenle", "sil", "iceaktar", "tema", "bildirim", "online-ekle", "kontrol", "temizle", "istatistik", "sistem"]
-        }
 
-        for cat_name, cmd_names in categories.items():
+        category_order = ["İSTASYON LİSTELEME", "OYNATMA", "KAYIT", "YÖNETİM", "DİĞER"]
+
+        grouped: Dict[str, list] = {}
+        for cmd in self.commands.values():
+            grouped.setdefault(cmd.category, []).append(cmd)
+
+        shown = set()
+        for cat_name in category_order:
+            if cat_name not in grouped:
+                continue
             ui.console.print(f"\n  [bold {ui.current_theme.primary}]{cat_name}[/]")
-            for name in cmd_names:
-                if name in self.commands:
-                    cmd = self.commands[name]
-                    ui.console.print(f"    [cyan]{name:<20}[/] - {cmd.desc}")
-        
+            for cmd in sorted(grouped[cat_name], key=lambda c: c.name):
+                ui.console.print(f"    [cyan]{cmd.name:<20}[/] - {cmd.desc}")
+                if cmd.hint:
+                    ui.console.print(f"    {'':20}   [{ui.current_theme.highlight}]ℹ  {cmd.hint}[/]")
+            shown.add(cat_name)
+
+        for cat_name, cmds in grouped.items():
+            if cat_name in shown:
+                continue
+            ui.console.print(f"\n  [bold {ui.current_theme.primary}]{cat_name}[/]")
+            for cmd in sorted(cmds, key=lambda c: c.name):
+                ui.console.print(f"    [cyan]{cmd.name:<20}[/] - {cmd.desc}")
+                if cmd.hint:
+                    ui.console.print(f"    {'':20}   [{ui.current_theme.highlight}]ℹ  {cmd.hint}[/]")
+
         ui.console.print(f"\n  [bold {ui.current_theme.primary}]GENEL[/]")
         ui.console.print("    [cyan]help / ?            [/] - Bu yardım menüsünü gösterir")
         ui.console.print("    [cyan]exit / q / quit     [/] - Uygulamadan çıkar")

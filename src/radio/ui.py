@@ -114,7 +114,7 @@ def show_connecting_progress(station_name: str):
             progress.update(task, advance=random.randint(1, 4))
             time.sleep(0.05)
 
-def print_station_table(title: str, stations: List[RadioStation]):
+def print_station_table(title: str, stations: List[RadioStation], subtitle: str = None):
     if not stations:
         print_info("Gösterilecek istasyon bulunamadı.")
         return
@@ -157,7 +157,10 @@ def print_station_table(title: str, stations: List[RadioStation]):
         )
     
     console.print(table)
-    console.print(f"  [dim]Toplam {len(stations)} istasyon listelendi.[/]\n")
+    console.print(f"  [dim]Toplam {len(stations)} istasyon listelendi.[/]")
+    if subtitle:
+        console.print(f"  [{current_theme.highlight}]ℹ  {subtitle}[/]")
+    console.print()
 
 def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_recording: bool):
     content = f"[{current_theme.primary}]Radyo:[/] {station.name}\n"

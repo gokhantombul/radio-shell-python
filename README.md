@@ -6,7 +6,7 @@
   ╔══════════════════════════════════════════════════════════════╗
   ║   ♬  ░░░ RADIO SHELL ░░░  ♬                                  ║
   ║   Terminal FM Radio Player - Türkiye & Dünya                 ║
-  ║   v2.0.0 | Python 3.14 + Rich                                ║
+  ║   Python 3.10+ · prompt_toolkit · rich                       ║
   ╚══════════════════════════════════════════════════════════════╝
 ```
 
@@ -16,55 +16,78 @@
 
 | Araç | Sürüm | Kurulum |
 |------|-------|---------|
-| Python | 3.10+ | `brew install python` |
-| ffmpeg (ffplay) | Herhangi | `brew install ffmpeg` |
-| Docker (isteğe bağlı) | 20+ | [docker.com](https://docker.com) |
+| Python | 3.10+ | [python.org](https://python.org) |
+| ffmpeg (ffplay) | Herhangi | Aşağıya bakın |
+
+**ffmpeg kurulumu:**
+
+| Platform | Komut |
+|----------|-------|
+| macOS | `brew install ffmpeg` |
+| Arch Linux | `sudo pacman -S ffmpeg` |
+| Ubuntu / Debian | `sudo apt install ffmpeg` |
+| Fedora | `sudo dnf install ffmpeg` |
+| Windows | `winget install Gyan.FFmpeg` |
 
 ---
 
 ## Kurulum ve Çalıştırma
 
-### Yöntem 1 — Doğrudan Terminal (Önerilen)
+### Yöntem 1 — Tek seferlik çalıştırma
 
 ```bash
-# Proje dizinine git
-cd radio-shell
+git clone https://github.com/kullanici/radio-shell-python.git
+cd radio-shell-python
 
-# Başlat (Gerekli bağımlılıkları otomatik yükler)
+# Linux / macOS
 chmod +x radio.sh
 ./radio.sh
+
+# Windows (cmd veya PowerShell)
+radio.bat
 ```
 
-### Yöntem 1.5 — `radio` Komutunu Global Yap (macOS/Linux/Windows)
+`radio.sh` / `radio.bat` ilk çalıştırmada Python sanal ortamı oluşturur ve bağımlılıkları otomatik yükler.
 
-Bu adımla projeyi her terminalden sadece `radio` yazarak açabilirsiniz.
+---
+
+### Yöntem 2 — `radio` komutunu globale al
+
+Kurulumdan sonra her terminalden sadece `radio` yazarak uygulamayı açabilirsiniz.
+
+**Linux / macOS:**
 
 ```bash
-# 1) Global komutu kur (macOS / Linux)
-./scripts/install-command.sh
+./radio.sh --install
+# → /usr/local/bin/radio veya ~/.local/bin/radio sembolik bağlantısı oluşturulur
 
-# 2) Yeni terminal aç ve çalıştır
-radio
+radio   # artık her yerden çalışır
+
+# Kaldırmak için:
+./radio.sh --uninstall
 ```
 
+> `~/.local/bin` PATH'te yoksa `radio.sh --install` sizi bilgilendirir ve hangi satırı ekleyeceğinizi gösterir.
 
-**Windows PowerShell:**
+**Windows (cmd veya PowerShell):**
 
-```powershell
-# 1) JAR üret
-mvn clean package -DskipTests
+```batch
+radio.bat --install
+:: → %USERPROFILE%\.local\bin\radio.bat oluşturulur
 
-# 2) Global komutu kur
-.\scripts\install-command.ps1
+:: Klasörü kalıcı olarak PATH'e ekleyin (bir kez yeterli):
+setx PATH "%PATH%;%USERPROFILE%\.local\bin"
 
-# 3) Yeni terminal aç ve çalıştır
+:: Yeni terminal açın:
 radio
+
+:: Kaldırmak için:
+radio.bat --uninstall
 ```
 
-> Not: Windows'ta `install-command.ps1`, `%USERPROFILE%\bin\radio.cmd` oluşturur.
-> `%USERPROFILE%\bin` PATH'e eklendiğinde komut her terminalden çalışır.
+---
 
-### Yöntem 2 — Docker
+### Yöntem 3 — Docker
 
 ```bash
 # Tek komutla build & çalıştır
@@ -74,10 +97,10 @@ radio
 docker compose up --build
 
 # Veya manuel
-docker build -t radio-shell:1.0.0 .
+docker build -t radio-shell .
 docker run --rm -it \
   -v ~/.radio-shell:/root/.radio-shell \
-  radio-shell:1.0.0
+  radio-shell
 ```
 
 > **macOS + Docker Ses Notu:** macOS'ta Docker container'ı ses cihazına doğrudan erişemez.
@@ -92,13 +115,16 @@ docker run --rm -it \
 
 | Komut | Açıklama |
 |-------|----------|
-| `listele` | Tüm 90+ istasyonu tabloda listeler |
+| `listele` | İlk 50 istasyonu listeler (varsayılan) |
+| `listele -n 20` | İlk 20 istasyonu listeler |
+| `listele --hepsi` | Tüm 90+ istasyonu listeler |
 | `turkiye` | Sadece Türkiye istasyonlarını listeler |
 | `ulkeler` | Mevcut ülkeleri ve istasyon sayılarını gösterir |
 | `ulke -i <ülke>` | Belirli bir ülkenin istasyonları |
 | `turler` | Mevcut müzik türlerini listeler |
 | `tur -i <tür>` | Belirli bir türdeki istasyonlar |
 | `ara -s <kelime>` | İsim, ülke veya türe göre arama |
+| `online-ara -s <kelime>` | radio-browser.info üzerinden online arama |
 
 ### Oynatma
 
@@ -107,7 +133,7 @@ docker run --rm -it \
 | `cal -i <id>` | İstasyonu çalar (ID veya isim) |
 | `son` | Son çalınan istasyonu tekrar çalar |
 | `dur` | Çalmayı durdurur |
-| `durum` | Şu an çalan istasyonu ve varsa şarkı bilgisini gösterir |
+| `durum` | Şu an çalan istasyonu ve şarkı bilgisini gösterir |
 | `ses -s <0-100>` | Ses seviyesini ayarlar |
 | `sonraki` | Son listede bir sonraki istasyona geçer |
 | `onceki` | Son listede bir önceki istasyona geçer |
@@ -127,21 +153,24 @@ docker run --rm -it \
 
 | Komut | Açıklama |
 |-------|----------|
-| `favori -i <id>` | İstasyonu favorilere ekler/çıkarır (★) |
+| `favori -i <id>` | İstasyonu favorilere ekler / çıkarır (★) |
 | `favoriler` | Favori istasyon listesi |
 
 ### Yönetim
 
 | Komut | Açıklama |
 |-------|----------|
-| `kontrol [-i <id>]` | Akış URL'lerini kontrol eder |
-| `ekle --id <id> --isim <isim> --ulke <ülke> --tur <tür> --url <url>` | Yeni istasyon ekler |
+| `ekle --id <id> --isim <isim> --ulke <ülke> --tur <tür> --url <url>` | Yeni özel istasyon ekler |
 | `duzenle --id <id> [--isim ...] [--ulke ...] [--tur ...] [--url ...]` | Özel istasyonu düzenler |
-| `iceaktar -d <dosya.m3u\|dosya.pls> [-u ülke] [-t tür] [-p önek]` | Playlist dosyasından özel istasyon ekler |
 | `sil --id <id>` | Özel istasyonu siler |
+| `online-ekle -i <id>` | radio-browser.info'dan istasyon ekler |
+| `iceaktar -d <dosya.m3u\|dosya.pls> [-u ülke] [-t tür] [-p önek]` | Playlist'ten özel istasyon ekler |
+| `kontrol [-i <id>]` | Akış URL'lerini kontrol eder |
 | `tema [-i <tema>]` | Renk temasını listeler veya değiştirir |
-| `sistem` | Sistem ve RAM kullanım bilgilerini gösterir |
+| `bildirim` | Masaüstü bildirimlerini açar / kapatır |
 | `istatistik` | Dinleme istatistiklerini gösterir |
+| `sistem` | Sistem ve RAM kullanım bilgilerini gösterir |
+| `temizle` | Terminal ekranını temizler |
 
 ### Diğer
 
@@ -154,7 +183,7 @@ docker run --rm -it \
 
 ## Kullanım Örnekleri
 
-```bash
+```
 # Power FM'i çal
 radio> cal -i tr-powerfm
 
@@ -185,20 +214,17 @@ radio> favori -i tr-powerfm
 # Özel istasyon ekle
 radio> ekle --id benim-radyom --isim "Benim Radyom" --ulke Türkiye --tur Pop --url http://stream.example.com/live
 
-# Özel istasyonu düzenle
-radio> duzenle --id benim-radyom --url https://stream.example.com/live
-
 # Durdur
 radio> dur
 ```
 
 ---
 
-## Dahili İstasyonlar (90+ Adet)
+## Dahili İstasyonlar (90+)
 
 ### Türkiye
 | İstasyon | Tür | ID |
-|----------|-----|-----|
+|----------|-----|----|
 | TRT FM | Pop/Türkçe | `tr-trt-fm` |
 | TRT Radyo 1 | Haber/Kültür | `tr-trt-radyo1` |
 | TRT Radyo 3 | Klasik/Caz | `tr-trt-radyo3` |
@@ -217,46 +243,32 @@ radio> dur
 | Radyo D | Pop | `tr-radyod` |
 | Number One FM | Pop/Dance | `tr-numberone` |
 | Radyo Eksen | Rock/Indie | `tr-radyoeksen` |
-| Virgül Radyo | Alternatif | `tr-virgulradyo` |
 | Açık Radyo | Karma/Kültür | `tr-acikmuzik` |
 
 ### Dünya
 | İstasyon | Ülke | Tür | ID |
-|----------|------|-----|-----|
-| BBC Radio 1-4 | UK | Çeşitli | `uk-bbc-radio1` ... |
+|----------|------|-----|----|
+| BBC Radio 1–4 | UK | Çeşitli | `uk-bbc-radio1` … |
 | Classic FM | UK | Klasik | `uk-classicfm` |
 | KEXP 90.3 FM | USA | Indie/Alt | `us-kexp` |
-| WFMU | USA | Freeform | `us-wfmu` |
 | Jazz24 | USA | Jazz | `us-jazz24` |
-| WQXR Classical | USA | Klasik | `us-klassik` |
 | SomaFM Groove Salad | USA | Ambient/Chill | `us-soma-groovesalad` |
-| SomaFM DEF CON | USA | Electronic | `us-soma-defcon` |
-| SomaFM Drone Zone | USA | Ambient/Space | `us-soma-dronezone` |
 | FIP Radio | Fransa | Eclectic | `fr-fip` |
 | France Musique | Fransa | Klasik | `fr-francemusique` |
-| France Inter | Fransa | Talk/Kültür | `fr-franceinter` |
 | SWR3 | Almanya | Pop/Rock | `de-swr3` |
-| Bayern 3 | Almanya | Pop | `de-bayern3` |
-| Deutschlandfunk Kultur | Almanya | Kültür/Klasik | `de-dlfkultur` |
 | RAI Radio 2 | İtalya | Pop | `it-rai-radio2` |
-| Los 40 Principales | İspanya | Pop | `es-los40` |
-| Radio 538 | Hollanda | Pop/Dance | `nl-radio538` |
 | J-Wave | Japonya | Pop/Urban | `jp-jwave` |
-| Antena 1 | Brezilya | Classic Hits | `br-antena1` |
 
 ---
 
 ## Yeni İstasyon Nasıl Eklenir?
 
-**Yöntem 1 — Uygulama içinden:**
-```bash
+**Uygulama içinden:**
+```
 radio> ekle --id my-station --isim "Benim Radyom" --ulke Türkiye --tur Pop --url http://stream.example.com/radio.mp3
 ```
 
-**Yöntem 2 — JSON dosyası:**
-
-`~/.radio-shell/custom-stations.json` dosyasını düzenleyin:
-
+**JSON dosyasıyla** (`~/.radio-shell/custom-stations.json`):
 ```json
 {
   "stations": [
@@ -277,30 +289,34 @@ radio> ekle --id my-station --isim "Benim Radyom" --ulke Türkiye --tur Pop --ur
 ## Proje Yapısı
 
 ```
-radio-shell/
-├── Dockerfile                          # Multi-stage Docker build
-├── docker-compose.yml                  # Docker Compose konfigürasyonu
-├── docker-run.sh                       # Platform-aware Docker başlatıcı
-├── radio.sh                            # Doğrudan terminal başlatıcı
-├── pom.xml                             # Maven bağımlılıkları
-└── src/main/
-    ├── java/com/radio/
-    │   ├── RadioShellApplication.java  # Uygulama girişi
-    │   ├── command/RadioCommands.java  # Shell komutları
-    │   ├── config/
-    │   │   ├── RadioConfig.java        # Konfigürasyon özellikleri
-    │   │   └── ShellConfig.java        # Temizleme (cleanup)
-    │   ├── model/
-    │   │   ├── RadioStation.java       # İstasyon veri modeli (record)
-    │   │   ├── StationList.java        # JSON wrapper
-    │   │   └── UserSettings.java       # Kalıcı kullanıcı ayarları
-    │   ├── player/AudioPlayer.java     # ffplay süreç yönetimi
-    │   ├── service/StationService.java # İstasyon CRUD & arama
-    │   ├── service/SettingsService.java # Ses ve son istasyon ayarları
-    │   └── shell/InteractiveShell.java # İnteraktif döngü
-    └── resources/
-        ├── application.properties      # Uygulama ayarları
-        └── stations.json               # 90+ dahili istasyon
+radio-shell-python/
+├── radio.sh                        # Linux/macOS başlatıcı (--install / --uninstall)
+├── radio.bat                       # Windows başlatıcı    (--install / --uninstall)
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── docker-run.sh
+├── src/
+│   ├── radio/
+│   │   ├── main.py                 # Giriş noktası, servis bağlama
+│   │   ├── shell.py                # prompt_toolkit REPL + otomatik tamamlama
+│   │   ├── player.py               # ffplay süreç yönetimi, ICY metadata
+│   │   ├── ui.py                   # rich konsol, 4 renk teması
+│   │   ├── models.py               # RadioStation, UserSettings veri modelleri
+│   │   ├── config.py               # RadioConfig (dizin yolları)
+│   │   ├── commands_basic.py       # Listeleme & arama komutları
+│   │   ├── commands_playback.py    # Oynatma komutları
+│   │   ├── commands_management.py  # İstasyon yönetimi, tema, istatistik
+│   │   └── services/
+│   │       ├── station_service.py
+│   │       ├── settings_service.py
+│   │       ├── statistics_service.py
+│   │       ├── radio_browser_service.py
+│   │       ├── notification_service.py
+│   │       └── system_service.py
+│   └── main/resources/
+│       └── stations.json           # 90+ dahili istasyon
+└── tests/
 ```
 
 ---
@@ -309,30 +325,32 @@ radio-shell/
 
 | Katman | Teknoloji |
 |--------|-----------|
-| Dil | Java 21 |
-| Framework | Spring Boot 4.0.5 |
-| Shell | Spring Shell 4.0.1 |
+| Dil | Python 3.10+ |
+| REPL / Tamamlama | prompt_toolkit |
+| Terminal UI | rich |
 | Ses Oynatıcı | ffplay (ffmpeg) |
-| Veri Formatı | JSON (Jackson) |
-| Build | Apache Maven 3.9 |
+| Kayıt | ffmpeg `-c copy` |
+| Online Arama | radio-browser.info API |
+| Sistem Bilgisi | psutil |
 | Container | Docker (multi-stage) |
 
 ---
 
 ## Kalıcı Veri
 
-Favoriler ve özel istasyonlar `~/.radio-shell/` dizininde saklanır:
+Tüm kullanıcı verisi `~/.radio-shell/` altında saklanır:
 
 ```
 ~/.radio-shell/
 ├── favorites.json        # Favori istasyon ID'leri
 ├── custom-stations.json  # Kullanıcı tarafından eklenen istasyonlar
-├── settings.json         # Ses seviyesi ve son çalınan istasyon
+├── settings.json         # Ses seviyesi, son çalınan istasyon, bildirim ayarı
+├── stats.json            # Dinleme istatistikleri
 ├── theme                 # Seçili renk teması
 └── recordings/           # MP3 kayıtları
 ```
 
-Docker kullanırken bu dizin volume olarak mount edilir, verileriniz container yeniden başlatmalarında korunur.
+Docker kullanırken bu dizin volume olarak mount edilir; container yeniden başlatmalarında verileriniz korunur.
 
 ---
 
@@ -348,27 +366,78 @@ Docker kullanırken bu dizin volume olarak mount edilir, verileriniz container y
 
 | Tool | Version | Install |
 |------|---------|---------|
-| Java JDK | 21+ | `brew install openjdk` |
-| Apache Maven | 3.9+ | `brew install maven` |
-| ffmpeg | Any | `brew install ffmpeg` |
-| Docker (optional) | 20+ | [docker.com](https://docker.com) |
+| Python | 3.10+ | [python.org](https://python.org) |
+| ffmpeg (ffplay) | Any | See below |
+
+**ffmpeg installation:**
+
+| Platform | Command |
+|----------|---------|
+| macOS | `brew install ffmpeg` |
+| Arch Linux | `sudo pacman -S ffmpeg` |
+| Ubuntu / Debian | `sudo apt install ffmpeg` |
+| Fedora | `sudo dnf install ffmpeg` |
+| Windows | `winget install Gyan.FFmpeg` |
 
 ---
 
 ## Setup & Running
 
-### Method 1 — Direct Terminal (Recommended)
+### Method 1 — One-off run
 
 ```bash
-# Build the project
-cd radio-shell
-mvn clean package -DskipTests
+git clone https://github.com/user/radio-shell-python.git
+cd radio-shell-python
 
-# Start
+# Linux / macOS
+chmod +x radio.sh
 ./radio.sh
+
+# Windows (cmd or PowerShell)
+radio.bat
 ```
 
-### Method 2 — Docker
+On first run, `radio.sh` / `radio.bat` automatically creates a Python virtual environment and installs dependencies.
+
+---
+
+### Method 2 — Install `radio` as a global command
+
+After installation you can launch the app from any terminal by typing `radio`.
+
+**Linux / macOS:**
+
+```bash
+./radio.sh --install
+# → creates a symlink at /usr/local/bin/radio or ~/.local/bin/radio
+
+radio   # works from anywhere now
+
+# To uninstall:
+./radio.sh --uninstall
+```
+
+> If `~/.local/bin` is not in your PATH, `radio.sh --install` will warn you and show the exact line to add for Bash, Zsh, or Fish.
+
+**Windows (cmd or PowerShell):**
+
+```batch
+radio.bat --install
+:: → creates %USERPROFILE%\.local\bin\radio.bat
+
+:: Add that folder to PATH permanently (once):
+setx PATH "%PATH%;%USERPROFILE%\.local\bin"
+
+:: Open a new terminal, then:
+radio
+
+:: To uninstall:
+radio.bat --uninstall
+```
+
+---
+
+### Method 3 — Docker
 
 ```bash
 # Build & run in one command
@@ -378,10 +447,10 @@ mvn clean package -DskipTests
 docker compose up --build
 
 # Or manually
-docker build -t radio-shell:1.0.0 .
+docker build -t radio-shell .
 docker run --rm -it \
   -v ~/.radio-shell:/root/.radio-shell \
-  radio-shell:1.0.0
+  radio-shell
 ```
 
 > **macOS + Docker Audio Note:** Docker on macOS cannot directly access the audio device.
@@ -396,13 +465,16 @@ docker run --rm -it \
 
 | Command | Description |
 |---------|-------------|
-| `listele` | List all 90+ stations in a table |
+| `listele` | List first 50 stations (default) |
+| `listele -n 20` | List first 20 stations |
+| `listele --hepsi` | List all 90+ stations |
 | `turkiye` | List Turkish stations only |
 | `ulkeler` | Show available countries and station counts |
 | `ulke -i <country>` | Stations from a specific country |
 | `turler` | List available music genres |
 | `tur -i <genre>` | Stations of a specific genre |
 | `ara -s <query>` | Search by name, country, or genre |
+| `online-ara -s <query>` | Search radio-browser.info online |
 
 ### Playback
 
@@ -411,14 +483,14 @@ docker run --rm -it \
 | `cal -i <id>` | Play a station (by ID or name) |
 | `son` | Play the last station again |
 | `dur` | Stop playback |
-| `durum` | Show currently playing station and song metadata when available |
+| `durum` | Show currently playing station and song info |
 | `ses -s <0-100>` | Set volume level |
-| `sonraki` | Move to the next station in the last list |
-| `onceki` | Move to the previous station in the last list |
+| `sonraki` | Next station in the last list |
+| `onceki` | Previous station in the last list |
 | `karistir [-u country] [-t genre] [-f]` | Play a random station |
 | `uyku -d <minutes>` | Stop playback after a delay |
 | `uyku iptal` | Cancel the sleep timer |
-| `gecmis [-n count]` | Show recent song metadata |
+| `gecmis [-n count]` | Show recent song metadata history |
 
 ### Recording
 
@@ -438,14 +510,17 @@ docker run --rm -it \
 
 | Command | Description |
 |---------|-------------|
-| `kontrol [-i <id>]` | Check stream URLs |
-| `ekle --id <id> --isim <name> --ulke <country> --tur <genre> --url <url>` | Add custom station |
+| `ekle --id <id> --isim <name> --ulke <country> --tur <genre> --url <url>` | Add a custom station |
 | `duzenle --id <id> [--isim ...] [--ulke ...] [--tur ...] [--url ...]` | Edit a custom station |
-| `iceaktar -d <file.m3u\|file.pls> [-u country] [-t genre] [-p prefix]` | Import custom stations from a playlist |
 | `sil --id <id>` | Remove a custom station |
+| `online-ekle -i <id>` | Add a station from radio-browser.info |
+| `iceaktar -d <file.m3u\|file.pls> [-u country] [-t genre] [-p prefix]` | Import stations from a playlist |
+| `kontrol [-i <id>]` | Check stream URLs |
 | `tema [-i <theme>]` | List or change color theme |
-| `sistem` | Show system and RAM usage information |
+| `bildirim` | Toggle desktop notifications |
 | `istatistik` | Show listening statistics |
+| `sistem` | Show system and RAM usage |
+| `temizle` | Clear the terminal screen |
 
 ### Other
 
@@ -458,7 +533,7 @@ docker run --rm -it \
 
 ## Usage Examples
 
-```bash
+```
 # Play Power FM
 radio> cal -i tr-powerfm
 
@@ -489,9 +564,6 @@ radio> favori -i tr-powerfm
 # Add a custom station
 radio> ekle --id my-station --isim "My Radio" --ulke Turkey --tur Pop --url http://stream.example.com/live
 
-# Edit a custom station
-radio> duzenle --id my-station --url https://stream.example.com/live
-
 # Stop playback
 radio> dur
 ```
@@ -500,15 +572,12 @@ radio> dur
 
 ## Adding New Stations
 
-**Method 1 — From within the app:**
-```bash
+**From within the app:**
+```
 radio> ekle --id my-station --isim "My Radio" --ulke Turkey --tur Pop --url http://stream.example.com/radio.mp3
 ```
 
-**Method 2 — JSON file:**
-
-Edit `~/.radio-shell/custom-stations.json`:
-
+**Via JSON file** (`~/.radio-shell/custom-stations.json`):
 ```json
 {
   "stations": [
@@ -529,30 +598,34 @@ Edit `~/.radio-shell/custom-stations.json`:
 ## Project Structure
 
 ```
-radio-shell/
-├── Dockerfile                          # Multi-stage Docker build
-├── docker-compose.yml                  # Docker Compose configuration
-├── docker-run.sh                       # Platform-aware Docker launcher
-├── radio.sh                            # Direct terminal launcher
-├── pom.xml                             # Maven dependencies
-└── src/main/
-    ├── java/com/radio/
-    │   ├── RadioShellApplication.java  # Application entry point
-    │   ├── command/RadioCommands.java  # Shell commands
-    │   ├── config/
-    │   │   ├── RadioConfig.java        # Configuration properties
-    │   │   └── ShellConfig.java        # Cleanup on shutdown
-    │   ├── model/
-    │   │   ├── RadioStation.java       # Station data model (record)
-    │   │   ├── StationList.java        # JSON wrapper
-    │   │   └── UserSettings.java       # Persistent user settings
-    │   ├── player/AudioPlayer.java     # ffplay process management
-    │   ├── service/StationService.java # Station CRUD & search
-    │   ├── service/SettingsService.java # Volume and last station settings
-    │   └── shell/InteractiveShell.java # Interactive shell loop
-    └── resources/
-        ├── application.properties      # Application settings
-        └── stations.json               # 90+ built-in stations
+radio-shell-python/
+├── radio.sh                        # Linux/macOS launcher (--install / --uninstall)
+├── radio.bat                       # Windows launcher    (--install / --uninstall)
+├── requirements.txt
+├── Dockerfile
+├── docker-compose.yml
+├── docker-run.sh
+├── src/
+│   ├── radio/
+│   │   ├── main.py                 # Entry point, service wiring
+│   │   ├── shell.py                # prompt_toolkit REPL + tab completion
+│   │   ├── player.py               # ffplay process management, ICY metadata
+│   │   ├── ui.py                   # rich console, 4 color themes
+│   │   ├── models.py               # RadioStation, UserSettings data models
+│   │   ├── config.py               # RadioConfig (directory paths)
+│   │   ├── commands_basic.py       # Listing & search commands
+│   │   ├── commands_playback.py    # Playback commands
+│   │   ├── commands_management.py  # Station management, themes, statistics
+│   │   └── services/
+│   │       ├── station_service.py
+│   │       ├── settings_service.py
+│   │       ├── statistics_service.py
+│   │       ├── radio_browser_service.py
+│   │       ├── notification_service.py
+│   │       └── system_service.py
+│   └── main/resources/
+│       └── stations.json           # 90+ built-in stations
+└── tests/
 ```
 
 ---
@@ -561,25 +634,27 @@ radio-shell/
 
 | Layer | Technology |
 |-------|------------|
-| Language | Java 21 |
-| Framework | Spring Boot 4.0.5 |
-| Shell | Spring Shell 4.0.1 |
+| Language | Python 3.10+ |
+| REPL / Completion | prompt_toolkit |
+| Terminal UI | rich |
 | Audio Player | ffplay (ffmpeg) |
-| Data Format | JSON (Jackson) |
-| Build Tool | Apache Maven 3.9 |
+| Recording | ffmpeg `-c copy` |
+| Online Search | radio-browser.info API |
+| System Info | psutil |
 | Container | Docker (multi-stage) |
 
 ---
 
 ## Persistent Data
 
-Favorites, custom stations, settings, theme, and recordings are stored in `~/.radio-shell/`:
+All user data is stored under `~/.radio-shell/`:
 
 ```
 ~/.radio-shell/
 ├── favorites.json        # Favorite station IDs
 ├── custom-stations.json  # User-added stations
-├── settings.json         # Volume and last station
+├── settings.json         # Volume, last station, notification setting
+├── stats.json            # Listening statistics
 ├── theme                 # Selected color theme
 └── recordings/           # MP3 recordings
 ```
