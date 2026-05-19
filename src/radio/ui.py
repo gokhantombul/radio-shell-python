@@ -1,5 +1,7 @@
 import os
 import sys
+import time
+import random
 from pathlib import Path
 from typing import List, Optional
 from rich.console import Console
@@ -7,6 +9,7 @@ from rich.table import Table
 from rich.panel import Panel
 from rich.text import Text
 from rich import box
+from rich.progress import Progress, SpinnerColumn, TextColumn, BarColumn, TaskProgressColumn
 
 from src.radio.models import RadioStation
 
@@ -94,6 +97,22 @@ def print_success(msg: str):
 
 def print_info(msg: str):
     console.print(f"[{current_theme.highlight}]  ℹ {msg}[/]")
+
+def show_connecting_progress(station_name: str):
+    """Displays a modern connecting progress bar animation."""
+    with Progress(
+        SpinnerColumn(),
+        TextColumn(f"[bold {current_theme.primary}]Bağlanıyor:[/] [white]{{task.fields[name]}}[/]"),
+        BarColumn(bar_width=40, complete_style=current_theme.primary, finished_style=current_theme.success),
+        TaskProgressColumn(),
+        console=console,
+        transient=True
+    ) as progress:
+        task = progress.add_task("connecting", name=station_name, total=100)
+        while not progress.finished:
+            # Random advance for a more realistic feel (approx 2 seconds total)
+            progress.update(task, advance=random.randint(1, 4))
+            time.sleep(0.05)
 
 def print_station_table(title: str, stations: List[RadioStation]):
     if not stations:

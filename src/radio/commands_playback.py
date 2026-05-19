@@ -50,6 +50,7 @@ class PlaybackCommands:
 
     def play_station(self, station):
         self._record_session()
+        ui.show_connecting_progress(station.name)
         self.player.play(station, self.settings_service.get_volume())
         self.settings_service.set_last_station_id(station.id)
         self.session_start = datetime.now()
