@@ -68,7 +68,12 @@ cd "$SCRIPT_DIR"
 if [ ! -d "venv" ]; then
     echo "ℹ Python sanal ortamı (venv) oluşturuluyor..."
     python3 -m venv venv
-    ./venv/bin/pip install -r requirements.txt -q
+    ./venv/bin/pip install --upgrade pip -q
+    ./venv/bin/pip install -e . -q
+    # Install test dependencies if requirements.txt exists and has them
+    if [ -f "requirements.txt" ]; then
+        ./venv/bin/pip install -r requirements.txt -q
+    fi
 fi
 
 export PYTHONPATH="$SCRIPT_DIR"

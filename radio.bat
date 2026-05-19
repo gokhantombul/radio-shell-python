@@ -31,7 +31,11 @@ cd /d "%SCRIPT_DIR%"
 if not exist "venv\" (
     echo [BILGI] Python sanal ortami olusturuluyor...
     python -m venv venv
-    venv\Scripts\pip install -r requirements.txt -q
+    venv\Scripts\pip install --upgrade pip -q
+    venv\Scripts\pip install -e . -q
+    if exist "requirements.txt" (
+        venv\Scripts\pip install -r requirements.txt -q
+    )
 )
 
 set "PYTHONPATH=%SCRIPT_DIR%"

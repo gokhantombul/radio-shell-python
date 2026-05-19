@@ -11,12 +11,19 @@ RUN apt-get update && \
 
 WORKDIR /app
 
-# Copy requirements and install dependencies
+# Copy packaging files first to leverage Docker cache
+COPY pyproject.toml .
+COPY README.md .
 COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+# Install dependencies
+RUN pip install --no-cache-dir .
 
 # Copy application source code
 COPY src ./src
+
+# Final installation of the package in editable-like fashion or just ensure it's there
+RUN pip install --no-cache-dir .
 
 # Favori ve özel istasyon verisi için volume
 VOLUME ["/root/.radio-shell"]
