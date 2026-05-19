@@ -1,5 +1,6 @@
 import json
 import os
+from typing import Optional
 from pathlib import Path
 from src.radio.config import RadioConfig
 from src.radio.models import UserSettings
@@ -17,7 +18,7 @@ class SettingsService:
         self.settings = self.settings.with_volume(volume)
         self.save()
 
-    def get_last_station_id(self) -> str:
+    def get_last_station_id(self) -> Optional[str]:
         return self.settings.lastStationId
 
     def set_last_station_id(self, station_id: str):
@@ -31,6 +32,13 @@ class SettingsService:
         self.settings = self.settings.with_notifications_enabled(enabled)
         self.save()
 
+    def get_language(self) -> str:
+        return self.settings.language
+
+    def set_language(self, language: str):
+        self.settings = self.settings.with_language(language)
+        self.save()
+
     def load(self):
         path = self.config.settings_file
         if not path or not os.path.exists(path):
@@ -41,7 +49,8 @@ class SettingsService:
                 self.settings = UserSettings(
                     volume=data.get('volume', 100),
                     lastStationId=data.get('lastStationId'),
-                    notificationsEnabled=data.get('notificationsEnabled', True)
+                    notificationsEnabled=data.get('notificationsEnabled', True),
+                    language=data.get('language', 'tr')
                 )
         except Exception:
             pass
@@ -57,7 +66,8 @@ class SettingsService:
                 data = {
                     'volume': self.settings.volume,
                     'lastStationId': self.settings.lastStationId,
-                    'notificationsEnabled': self.settings.notificationsEnabled
+                    'notificationsEnabled': self.settings.notificationsEnabled,
+                    'language': self.settings.language
                 }
                 json.dump(data, f, indent=2)
         except Exception:

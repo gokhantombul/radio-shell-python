@@ -7,30 +7,35 @@ from src.radio.services.station_service import StationService
 from src.radio.services.radio_browser_service import RadioBrowserService, OnlineStation
 from src.radio.services.notification_service import NotificationService
 from src.radio.player import AudioPlayer
+from src.radio.services.settings_service import SettingsService
 from src.radio.models import RadioStation
 from src.radio import ui
+from src.radio.services.localization_service import L
 
 class ManagementCommands:
-    def __init__(self, shell: InteractiveShell, station_service: StationService, radio_browser: RadioBrowserService, notification_service: NotificationService, player: AudioPlayer):
+    def __init__(self, shell: InteractiveShell, station_service: StationService, radio_browser: RadioBrowserService, notification_service: NotificationService, player: AudioPlayer, settings_service: SettingsService):
         self.station_service = station_service
         self.radio_browser = radio_browser
         self.notification_service = notification_service
         self.player = player
+        self.settings_service = settings_service
         self.last_online_search: List[OnlineStation] = []
 
-        shell.register("favori", self.cmd_favori, "İstasyonu favorilere ekler/çıkarır", "YÖNETİM")
-        shell.register("favoriler", self.cmd_favoriler, "Favori istasyonları listeler", "YÖNETİM")
-        shell.register("kaydet", self.cmd_kaydet, "Çalan yayını kaydetmeye başlar", "KAYIT")
-        shell.register("kayitdur", self.cmd_kayitdur, "Kaydı durdurur", "KAYIT")
-        shell.register("tema", self.cmd_tema, "Renk temasını değiştirir", "YÖNETİM")
-        shell.register("kontrol", self.cmd_kontrol, "İstasyon akış URL'lerini kontrol eder", "YÖNETİM")
-        shell.register("ekle", self.cmd_ekle, "Yeni özel istasyon ekler", "YÖNETİM")
-        shell.register("duzenle", self.cmd_duzenle, "Özel istasyonu düzenler", "YÖNETİM")
-        shell.register("sil", self.cmd_sil, "Özel istasyonu siler", "YÖNETİM")
-        shell.register("iceaktar", self.cmd_iceaktar, "Playlist dosyasından istasyon ekler", "YÖNETİM")
-        shell.register("bildirim", self.cmd_bildirim, "Bildirimleri açar/kapatır", "YÖNETİM")
-        shell.register("online-ara", self.cmd_online_ara, "RadioBrowser üzerinden istasyon arar", "İSTASYON LİSTELEME")
-        shell.register("online-ekle", self.cmd_online_ekle, "Arama sonucundan istasyon ekler", "YÖNETİM")
+        shell.register("favori", self.cmd_favori, "cmd_favori_desc", "cat_management")
+        shell.register("favoriler", self.cmd_favoriler, "cmd_favoriler_desc", "cat_management")
+        shell.register("kaydet", self.cmd_kaydet, "cmd_kaydet_desc", "cat_recording")
+        shell.register("kayitdur", self.cmd_kayitdur, "cmd_kayitdur_desc", "cat_recording")
+        shell.register("tema", self.cmd_tema, "cmd_tema_desc", "cat_management")
+        shell.register("kontrol", self.cmd_kontrol, "cmd_kontrol_desc", "cat_management")
+        shell.register("ekle", self.cmd_ekle, "cmd_ekle_desc", "cat_management")
+        shell.register("duzenle", self.cmd_duzenle, "cmd_duzenle_desc", "cat_management")
+        shell.register("sil", self.cmd_sil, "cmd_sil_desc", "cat_management")
+        shell.register("iceaktar", self.cmd_iceaktar, "cmd_iceaktar_desc", "cat_management")
+        shell.register("bildirim", self.cmd_bildirim, "cmd_bildirim_desc", "cat_management")
+        shell.register("online-ara", self.cmd_online_ara, "cmd_online_ara_desc", "cat_listing")
+        shell.register("online-ekle", self.cmd_online_ekle, "cmd_online_ekle_desc", "cat_management")
+        shell.register("dil", self.cmd_dil, "cmd_dil_desc", "cat_management")
+        shell.register("lang", self.cmd_dil, "cmd_dil_desc", "cat_management")
 
     def cmd_favori(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="favori")
@@ -39,19 +44,19 @@ class ManagementCommands:
             parsed = parser.parse_args(args)
             station = self.station_service.get_station(parsed.id)
             if not station:
-                ui.print_error("İstasyon bulunamadı.")
+                ui.print_error(L.get("msg_station_not_found"))
                 return
             added = self.station_service.toggle_favorite(station.id)
             if added:
-                ui.print_success(f"Favorilere eklendi: {station.name}")
+                ui.print_success(L.get("msg_fav_added", name=station.name))
             else:
-                ui.print_info(f"Favorilerden çıkarıldı: {station.name}")
+                ui.print_info(L.get("msg_fav_removed", name=station.name))
         except SystemExit:
-            ui.print_error("Kullanım: favori -i <id>")
+            ui.print_error("Usage: favori -i <id>")
 
     def cmd_favoriler(self, args: List[str]):
         favs = self.station_service.get_favorites()
-        ui.print_station_table("Favori İstasyonlar", favs)
+        ui.print_station_table(L.get("cmd_favoriler_desc"), favs)
 
     def cmd_kaydet(self, args: List[str]):
         msg = self.player.start_recording()
@@ -246,3 +251,20 @@ class ManagementCommands:
             ui.print_success(f"İstasyon eklendi: {s.name} (ID: {s.id})")
         except SystemExit:
             ui.print_error("Kullanım: online-ekle -n <no>")
+
+    def cmd_dil(self, args: List[str]):
+        parser = argparse.ArgumentParser(prog="dil")
+        parser.add_argument("-i", "--isim", choices=list(L.LANGUAGES.keys()))
+        try:
+            parsed, _ = parser.parse_known_args(args)
+            if parsed.isim:
+                self.settings_service.set_language(parsed.isim)
+                L.set_language(parsed.isim)
+                ui.print_success(L.get("lang_updated", lang=L.LANGUAGES[parsed.isim]))
+            else:
+                ui.console.print(f"[cyan]{L.get('cat_management')} > {L.get('lang_select_title')}:[/]")
+                for code, name in L.LANGUAGES.items():
+                    ui.console.print(f"  [bold cyan]{code}[/] - {name}")
+                ui.print_info(f"Usage: lang -i <{'|'.join(L.LANGUAGES.keys())}>")
+        except SystemExit:
+            pass

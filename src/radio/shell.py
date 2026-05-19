@@ -1,10 +1,8 @@
-import sys
 import shlex
-import time
 from datetime import datetime
-from typing import Dict, Callable, List, Iterable, Optional
+from typing import Dict, Callable, Iterable, Optional
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import Completer, Completion, WordCompleter
+from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.document import Document
 from prompt_toolkit.formatted_text import HTML
@@ -13,14 +11,36 @@ from prompt_toolkit.styles import Style
 from src.radio import ui
 from src.radio.services.station_service import StationService
 from src.radio.player import AudioPlayer
-
+from src.radio.services.localization_service import L
 class ShellCommand:
-    def __init__(self, name: str, func: Callable, desc: str, category: str = "DİĞER", hint: str = ""):
+    def __init__(self, name: str, func: Callable, desc: str, category: Optional[str] = None, hint: str = ""):
         self.name = name
         self.func = func
-        self.desc = desc
-        self.category = category
-        self.hint = hint
+        self.desc_key = desc
+        self.category_key = category
+        self.hint_key = hint
+
+    @property
+    def desc(self) -> str:
+        if "_" in self.desc_key:
+            return L.get(self.desc_key)
+        return self.desc_key
+
+    @property
+    def category(self) -> str:
+        if not self.category_key:
+            return L.get("cat_other")
+        if "_" in self.category_key:
+            return L.get(self.category_key)
+        return self.category_key
+
+    @property
+    def hint(self) -> str:
+        if not self.hint_key:
+            return ""
+        if "_" in self.hint_key:
+            return L.get(self.hint_key)
+        return self.hint_key
 
 class RadioCompleter(Completer):
     def __init__(self, shell: 'InteractiveShell', station_service: StationService):
@@ -93,7 +113,7 @@ class InteractiveShell:
             'scrollbar.button':                       'bg:#2a4a2a',
         })
         
-        self.session = PromptSession(
+        self.session: PromptSession = PromptSession(
             history=InMemoryHistory(), 
             completer=self.completer,
             style=self.style
@@ -105,9 +125,15 @@ class InteractiveShell:
         self.commands[name] = ShellCommand(name, func, desc, category, hint)
 
     def print_help(self):
-        ui.print_header("KOMUT LİSTESİ")
+        ui.print_header(L.get("help_title"))
 
-        category_order = ["İSTASYON LİSTELEME", "OYNATMA", "KAYIT", "YÖNETİM", "DİĞER"]
+        category_order = [
+            L.get("cat_listing"),
+            L.get("cat_playback"),
+            L.get("cat_recording"),
+            L.get("cat_management"),
+            L.get("cat_other")
+        ]
 
         grouped: Dict[str, list] = {}
         for cmd in self.commands.values():
@@ -133,20 +159,20 @@ class InteractiveShell:
                 if cmd.hint:
                     ui.console.print(f"    {'':20}   [{ui.current_theme.highlight}]ℹ  {cmd.hint}[/]")
 
-        ui.console.print(f"\n  [bold {ui.current_theme.primary}]GENEL[/]")
-        ui.console.print("    [cyan]help / ?            [/] - Bu yardım menüsünü gösterir")
-        ui.console.print("    [cyan]exit / q / quit     [/] - Uygulamadan çıkar")
+        ui.console.print(f"\n  [bold {ui.current_theme.primary}]{L.get('cat_general')}[/]")
+        ui.console.print(f"    [cyan]{L.get('help_general')}")
+        ui.console.print(f"    [cyan]{L.get('exit_general')}")
 
     def _get_bottom_toolbar(self):
         SEP = '  <ansibrightblack>│</ansibrightblack>  '
 
         if not self.player or not self.player.is_playing():
-            return HTML('  <ansibrightblack>⏹  radyo durduruldu</ansibrightblack>  ')
+            return HTML(f'  <ansibrightblack>⏹  {L.get("stopped")}</ansibrightblack>  ')
 
         p = self.player
         s = p.current_station
 
-        station_name = (s.name[:30] + '…') if s and len(s.name) > 30 else (s.name if s else 'Bilinmiyor')
+        station_name = (s.name[:30] + '…') if s and len(s.name) > 30 else (s.name if s else '—')
         country = s.country if s and s.country else '—'
         genre = s.genre if s and s.genre else ''
 
@@ -166,12 +192,12 @@ class InteractiveShell:
             song_title = (p.current_song[:45] + '…') if len(p.current_song) > 45 else p.current_song
             song_part = f'{SEP}<ansiyellow>🎵  {song_title}</ansiyellow>'
         elif show_waiting_msg:
-            song_part = f'{SEP}<ansibrightblack>🎵  şarkı bilgisi bekleniyor</ansibrightblack>'
+            song_part = f'{SEP}<ansibrightblack>🎵  {L.get("waiting_song")}</ansibrightblack>'
         else:
             song_part = ''
 
         genre_part = f'{SEP}🏷  {genre}' if genre else ''
-        rec_part = f'  <ansired>🔴  KAYIT</ansired>' if p.is_recording() else ''
+        rec_part = f'  <ansired>🔴  {L.get("recording")}</ansired>' if p.is_recording() else ''
 
         return HTML(
             f'  <ansicyan><b>📻  {station_name}</b></ansicyan>'
@@ -207,7 +233,7 @@ class InteractiveShell:
         ui.print_banner()
         
         # Center the welcome message relative to the banner width (approx 70 chars)
-        welcome_msg = "Komutlar için [bold cyan]'help'[/], çıkmak için [bold red]'exit'[/] yazın."
+        welcome_msg = L.get("welcome_msg")
         ui.console.print(f"{' ' * 10}{welcome_msg}\n")
         
         while self.running:
@@ -233,14 +259,14 @@ class InteractiveShell:
                     try:
                         self.commands[cmd_name].func(args)
                     except Exception as e:
-                        ui.print_error(f"Komut çalıştırılırken hata: {e}")
+                        ui.print_error(L.get("error_executing", error=e))
                 else:
-                    ui.print_error(f"Bilinmeyen komut: '{cmd_name}'. Yardım için 'help' yazın.")
+                    ui.print_error(L.get("unknown_command", cmd=cmd_name))
 
             except KeyboardInterrupt:
                 continue
             except EOFError:
                 break
             except Exception as e:
-                ui.print_error(f"Shell hatası: {e}")
+                ui.print_error(L.get("shell_error", error=e))
 

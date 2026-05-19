@@ -1,7 +1,7 @@
 import os
 import psutil
 import platform
-from typing import Dict, Any, List
+from typing import Dict, Any
 from src.radio.player import AudioPlayer
 
 class SystemService:
@@ -45,8 +45,9 @@ class SystemService:
 
     def format_bytes(self, n: int) -> str:
         """Converts bytes to human readable string."""
+        nf = float(n)
         for unit in ['B', 'KB', 'MB', 'GB']:
-            if n < 1024:
-                return f"{n:.2f} {unit}"
-            n /= 1024
-        return f"{n:.2f} TB"
+            if nf < 1024:
+                return f"{nf:.2f} {unit}"
+            nf /= 1024
+        return f"{nf:.2f} TB"

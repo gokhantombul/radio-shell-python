@@ -9,6 +9,7 @@ from typing import Optional, Callable
 from src.radio.config import RadioConfig
 from src.radio.models import RadioStation
 from src.radio.services.notification_service import NotificationService
+from src.radio.services.localization_service import L
 
 class AudioPlayer:
     def __init__(self, config: RadioConfig, notification_service: NotificationService):
@@ -136,9 +137,9 @@ class AudioPlayer:
 
     def start_recording(self) -> str:
         if not self.is_playing() or not self.current_station:
-            return "Radyo çalmıyor!"
+            return L.get("msg_not_playing")
         if self.is_recording():
-            return "Zaten kayıt yapılıyor!"
+            return L.get("msg_already_recording")
 
         self.config.ensure_dirs()
         safe_name = "".join(c if c.isalnum() else "_" for c in self.current_station.name.lower())
@@ -160,28 +161,28 @@ class AudioPlayer:
                 cmd, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
             )
             self.current_record_path = filepath
-            return f"Kayıt başladı: {filename}"
+            return L.get("msg_recording_started", file=filename)
         except Exception as e:
-            return f"Kayıt başlatılamadı: {e}"
+            return L.get("msg_recording_failed", error=e)
 
     def stop_recording(self) -> str:
         if not self.is_recording():
-            return "Aktif kayıt yok."
+            return L.get("msg_no_active_record")
 
         saved_path = self.current_record_path
-        try:
-            self.record_process.terminate()
-            self.record_process.wait(timeout=2)
-        except Exception:
-            if self.record_process:
+        if self.record_process:
+            try:
+                self.record_process.terminate()
+                self.record_process.wait(timeout=2)
+            except Exception:
                 self.record_process.kill()
         
         self.record_process = None
         self.current_record_path = None
         
         if saved_path:
-            return f"Kayıt durduruldu. Şuraya kaydedildi: {saved_path}"
-        return "Kayıt durduruldu."
+            return L.get("msg_recording_stopped", path=saved_path)
+        return L.get("msg_recording_stopped_simple")
 
     def is_recording(self) -> bool:
         return self.record_process is not None and self.record_process.poll() is None

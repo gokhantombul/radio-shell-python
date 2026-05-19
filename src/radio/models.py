@@ -18,19 +18,23 @@ class UserSettings:
     volume: int = 100
     lastStationId: Optional[str] = None
     notificationsEnabled: bool = True
+    language: str = "tr"
 
     @staticmethod
     def defaults() -> 'UserSettings':
-        return UserSettings(100, None, True)
+        return UserSettings(100, None, True, "tr")
 
     def with_volume(self, new_volume: int) -> 'UserSettings':
-        return UserSettings(new_volume, self.lastStationId, self.notificationsEnabled)
+        return UserSettings(new_volume, self.lastStationId, self.notificationsEnabled, self.language)
 
     def with_last_station_id(self, station_id: str) -> 'UserSettings':
-        return UserSettings(self.volume, station_id, self.notificationsEnabled)
+        return UserSettings(self.volume, station_id, self.notificationsEnabled, self.language)
 
     def with_notifications_enabled(self, enabled: bool) -> 'UserSettings':
-        return UserSettings(self.volume, self.lastStationId, enabled)
+        return UserSettings(self.volume, self.lastStationId, enabled, self.language)
+
+    def with_language(self, language: str) -> 'UserSettings':
+        return UserSettings(self.volume, self.lastStationId, self.notificationsEnabled, language)
 
 @dataclass
 class StationList:
