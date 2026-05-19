@@ -290,6 +290,7 @@ radio> ekle --id my-station --isim "Benim Radyom" --ulke Türkiye --tur Pop --ur
 
 ```
 radio-shell-python/
+├── pyproject.toml                  # Modern Python paket yapılandırması
 ├── radio.sh                        # Linux/macOS başlatıcı (--install / --uninstall)
 ├── radio.bat                       # Windows başlatıcı    (--install / --uninstall)
 ├── requirements.txt
@@ -298,24 +299,21 @@ radio-shell-python/
 ├── docker-run.sh
 ├── src/
 │   ├── radio/
+│   │   ├── __init__.py
 │   │   ├── main.py                 # Giriş noktası, servis bağlama
 │   │   ├── shell.py                # prompt_toolkit REPL + otomatik tamamlama
 │   │   ├── player.py               # ffplay süreç yönetimi, ICY metadata
 │   │   ├── ui.py                   # rich konsol, 4 renk teması
 │   │   ├── models.py               # RadioStation, UserSettings veri modelleri
 │   │   ├── config.py               # RadioConfig (dizin yolları)
-│   │   ├── commands_basic.py       # Listeleme & arama komutları
-│   │   ├── commands_playback.py    # Oynatma komutları
-│   │   ├── commands_management.py  # İstasyon yönetimi, tema, istatistik
+│   │   ├── commands_*.py           # Komut modülleri
+│   │   ├── data/
+│   │   │   ├── __init__.py
+│   │   │   └── stations.json       # 90+ dahili istasyon
 │   │   └── services/
+│   │       ├── __init__.py
 │   │       ├── station_service.py
-│   │       ├── settings_service.py
-│   │       ├── statistics_service.py
-│   │       ├── radio_browser_service.py
-│   │       ├── notification_service.py
-│   │       └── system_service.py
-│   └── main/resources/
-│       └── stations.json           # 90+ dahili istasyon
+│   │       └── ...                 # Diğer servisler
 └── tests/
 ```
 
@@ -599,6 +597,7 @@ radio> ekle --id my-station --isim "My Radio" --ulke Turkey --tur Pop --url http
 
 ```
 radio-shell-python/
+├── pyproject.toml                  # Modern Python packaging config
 ├── radio.sh                        # Linux/macOS launcher (--install / --uninstall)
 ├── radio.bat                       # Windows launcher    (--install / --uninstall)
 ├── requirements.txt
@@ -607,24 +606,21 @@ radio-shell-python/
 ├── docker-run.sh
 ├── src/
 │   ├── radio/
+│   │   ├── __init__.py
 │   │   ├── main.py                 # Entry point, service wiring
 │   │   ├── shell.py                # prompt_toolkit REPL + tab completion
 │   │   ├── player.py               # ffplay process management, ICY metadata
 │   │   ├── ui.py                   # rich console, 4 color themes
 │   │   ├── models.py               # RadioStation, UserSettings data models
 │   │   ├── config.py               # RadioConfig (directory paths)
-│   │   ├── commands_basic.py       # Listing & search commands
-│   │   ├── commands_playback.py    # Playback commands
-│   │   ├── commands_management.py  # Station management, themes, statistics
+│   │   ├── commands_*.py           # Command modules
+│   │   ├── data/
+│   │   │   ├── __init__.py
+│   │   │   └── stations.json       # 90+ built-in stations
 │   │   └── services/
+│   │       ├── __init__.py
 │   │       ├── station_service.py
-│   │       ├── settings_service.py
-│   │       ├── statistics_service.py
-│   │       ├── radio_browser_service.py
-│   │       ├── notification_service.py
-│   │       └── system_service.py
-│   └── main/resources/
-│       └── stations.json           # 90+ built-in stations
+│   │       └── ...                 # Other services
 └── tests/
 ```
 
