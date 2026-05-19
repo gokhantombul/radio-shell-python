@@ -4,6 +4,7 @@ from src.radio.config import RadioConfig
 from src.radio.services.settings_service import SettingsService
 from src.radio.services.station_service import StationService
 from src.radio.services.statistics_service import StatisticsService
+from src.radio.services.system_service import SystemService
 from src.radio.services.radio_browser_service import RadioBrowserService
 from src.radio.services.notification_service import NotificationService
 from src.radio.player import AudioPlayer
@@ -30,12 +31,15 @@ def main():
 
     # 3. Initialize Player
     player = AudioPlayer(config, notification_service)
+    
+    # System Service
+    system_service = SystemService(player)
 
     # 4. Initialize Interactive Shell
     shell = InteractiveShell(station_service)
 
     # 5. Register Commands
-    basic_cmds = BasicCommands(shell, station_service, stats_service, player)
+    basic_cmds = BasicCommands(shell, station_service, stats_service, system_service, player)
     playback_cmds = PlaybackCommands(shell, station_service, settings_service, stats_service, player, basic_cmds)
     ManagementCommands(shell, station_service, radio_browser, notification_service, player)
 

@@ -140,6 +140,8 @@ docker run --rm -it \
 | `iceaktar -d <dosya.m3u\|dosya.pls> [-u ülke] [-t tür] [-p önek]` | Playlist dosyasından özel istasyon ekler |
 | `sil --id <id>` | Özel istasyonu siler |
 | `tema [-i <tema>]` | Renk temasını listeler veya değiştirir |
+| `sistem` | Sistem ve RAM kullanım bilgilerini gösterir |
+| `istatistik` | Dinleme istatistiklerini gösterir |
 
 ### Diğer
 
@@ -442,6 +444,8 @@ docker run --rm -it \
 | `iceaktar -d <file.m3u\|file.pls> [-u country] [-t genre] [-p prefix]` | Import custom stations from a playlist |
 | `sil --id <id>` | Remove a custom station |
 | `tema [-i <theme>]` | List or change color theme |
+| `sistem` | Show system and RAM usage information |
+| `istatistik` | Show listening statistics |
 
 ### Other
 

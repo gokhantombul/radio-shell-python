@@ -4,13 +4,15 @@ from typing import List
 from src.radio.shell import InteractiveShell
 from src.radio.services.station_service import StationService
 from src.radio.services.statistics_service import StatisticsService
+from src.radio.services.system_service import SystemService
 from src.radio.player import AudioPlayer
 from src.radio import ui
 
 class BasicCommands:
-    def __init__(self, shell: InteractiveShell, station_service: StationService, stats_service: StatisticsService, player: AudioPlayer):
+    def __init__(self, shell: InteractiveShell, station_service: StationService, stats_service: StatisticsService, system_service: SystemService, player: AudioPlayer):
         self.station_service = station_service
         self.stats_service = stats_service
+        self.system_service = system_service
         self.player = player
         self.last_list = []
 
@@ -23,6 +25,7 @@ class BasicCommands:
         shell.register("ara", self.cmd_ara, "İstasyon arar (isim, ülke veya tür)", "İSTASYON LİSTELEME")
         shell.register("istatistik", self.cmd_istatistik, "Dinleme istatistiklerini gösterir", "YÖNETİM")
         shell.register("durum", self.cmd_durum, "Şu anki çalma durumunu gösterir", "OYNATMA")
+        shell.register("sistem", self.cmd_sistem, "Sistem ve RAM kullanım bilgilerini gösterir", "YÖNETİM")
         shell.register("clear", self.cmd_temizle, "Terminal ekranını temizler", "YÖNETİM")
         shell.register("temizle", self.cmd_temizle, "Terminal ekranını temizler", "YÖNETİM")
 
@@ -123,6 +126,39 @@ class BasicCommands:
             self.player.volume,
             self.player.is_recording()
         )
+
+    def cmd_sistem(self, args: List[str]):
+        mem = self.system_service.get_memory_info()
+        stats = self.system_service.get_system_stats()
+        
+        from rich.panel import Panel
+        from rich.table import Table
+        from rich.columns import Columns
+
+        # Memory Table
+        mem_table = Table(show_header=False, box=None)
+        mem_table.add_row("Radyo Shell (Python):", self.system_service.format_bytes(mem["main_process"]))
+        
+        for child in mem["children_processes"]:
+            mem_table.add_row(f"{child['name']} (Motor):", self.system_service.format_bytes(child["memory"]))
+        
+        mem_table.add_section()
+        mem_table.add_row("[bold]Toplam Kullanım:[/]", f"[bold cyan]{self.system_service.format_bytes(mem['total_memory'])}[/]")
+
+        # System Info Table
+        sys_table = Table(show_header=False, box=None)
+        sys_table.add_row("İşletim Sistemi:", stats["os"])
+        sys_table.add_row("Python Sürümü:", stats["python_version"])
+        sys_table.add_row("CPU Kullanımı:", f"%{stats['cpu_percent']}")
+        
+        sys_mem = stats["virtual_memory"]
+        sys_table.add_row("Sistem RAM:", f"{self.system_service.format_bytes(sys_mem['used'])} / {self.system_service.format_bytes(sys_mem['total'])}")
+
+        ui.console.print(Panel(
+            Columns([mem_table, sys_table]),
+            title="[bold magenta]Sistem Bilgileri[/]",
+            border_style="cyan"
+        ))
 
     def cmd_temizle(self, args: List[str]):
         ui.console.clear()

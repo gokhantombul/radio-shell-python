@@ -104,7 +104,7 @@ class InteractiveShell:
             "İSTASYON LİSTELEME": ["listele", "turkiye", "ulkeler", "ulke", "turler", "tur", "ara", "online-ara"],
             "OYNATMA": ["cal", "son", "dur", "durum", "ses", "sonraki", "onceki", "karistir", "uyku", "gecmis"],
             "KAYIT": ["kaydet", "kayitdur"],
-            "YÖNETİM": ["favori", "favoriler", "ekle", "duzenle", "sil", "iceaktar", "tema", "bildirim", "online-ekle", "kontrol", "temizle"]
+            "YÖNETİM": ["favori", "favoriler", "ekle", "duzenle", "sil", "iceaktar", "tema", "bildirim", "online-ekle", "kontrol", "temizle", "istatistik", "sistem"]
         }
 
         for cat_name, cmd_names in categories.items():
