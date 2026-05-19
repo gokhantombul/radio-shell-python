@@ -133,32 +133,11 @@ class StationService:
         return [s for s in self.get_all_stations() if q in s.name.lower() or q in s.country.lower() or q in s.genre.lower()]
 
     def _load_internal_stations(self):
-        # Look in resources or current dir
-        base_dir = Path(__file__).resolve().parent.parent.parent.parent
-        paths_to_check = [
-            base_dir / 'src' / 'main' / 'resources' / 'stations.json',
-            base_dir / 'stations.json',
-            Path('src/main/resources/stations.json'),
-            Path('stations.json')
-        ]
-
-        target_path = None
-        for p in paths_to_check:
-            if p.exists():
-                target_path = p
-                break
-
-        if not target_path:
-            # Fallback to local if still not found
-            local_stations = Path(__file__).parent.parent / "resources" / "stations.json"
-            if local_stations.exists():
-                target_path = local_stations
-
-        if not target_path:
-            return
-
         try:
-            with open(target_path, 'r', encoding='utf-8') as f:
+            from importlib import resources
+            # Modern way to load package data
+            data_file = resources.files('src.radio.data').joinpath('stations.json')
+            with data_file.open('r', encoding='utf-8') as f:
                 data = json.load(f)
                 stations_data = data.get('stations', [])
                 for s in stations_data:
@@ -169,8 +148,25 @@ class StationService:
                         genre=s.get('genre'),
                         url=s.get('url')
                     ))
-        except Exception:
-            pass
+        except (ImportError, FileNotFoundError, AttributeError, json.JSONDecodeError):
+            # Fallback for older python or when not running as package
+            base_dir = Path(__file__).resolve().parent.parent
+            target_path = base_dir / 'data' / 'stations.json'
+            if target_path.exists():
+                try:
+                    with open(target_path, 'r', encoding='utf-8') as f:
+                        data = json.load(f)
+                        stations_data = data.get('stations', [])
+                        for s in stations_data:
+                            self.stations.append(RadioStation(
+                                id=s.get('id'),
+                                name=s.get('name'),
+                                country=s.get('country'),
+                                genre=s.get('genre'),
+                                url=s.get('url')
+                            ))
+                except Exception:
+                    pass
 
     def _load_favorites(self):
         path = self.config.favorites_file
