@@ -1,0 +1,10 @@
+com/radio/service/SettingsServiceTest.class
+com/radio/command/RadioCommandsTest$FakeRadioBrowserService.class
+com/radio/command/RadioCommandsTest.class
+com/radio/service/StatisticsServiceTest.class
+com/radio/util/UIUtilsTest.class
+com/radio/service/StationServiceTest.class
+com/radio/player/AudioPlayerTest.class
+com/radio/config/RadioConfigBindingTest.class
+com/radio/command/RadioCommandsTest$FakeAudioPlayer.class
+com/radio/config/RadioConfigBindingTest$1.class

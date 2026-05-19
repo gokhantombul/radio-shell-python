@@ -1,0 +1,25 @@
+services:
+  radio-shell:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: radio-shell:1.0.0
+    container_name: radio-shell
+
+    # İnteraktif terminal (komut girişi için zorunlu)
+    stdin_open: true
+    tty: true
+
+    # Favoriler, özel istasyonlar ve PulseAudio
+    volumes:
+      - ${HOME}/.radio-shell:/root/.radio-shell
+      - ${XDG_RUNTIME_DIR}/pulse/native:/run/pulse/native
+      - ${HOME}/.config/pulse/cookie:/root/.config/pulse/cookie:ro
+
+    # ALSA ses cihazı erişimi
+    devices:
+      - /dev/snd:/dev/snd
+
+    environment:
+      - TERM=xterm-256color
+      - PULSE_SERVER=unix:/run/pulse/native
