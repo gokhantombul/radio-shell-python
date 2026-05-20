@@ -18,11 +18,11 @@ class UserSettings:
     volume: int = 100
     lastStationId: Optional[str] = None
     notificationsEnabled: bool = True
-    language: str = "tr"
+    language: str = "en"
 
     @staticmethod
     def defaults() -> 'UserSettings':
-        return UserSettings(100, None, True, "tr")
+        return UserSettings(100, None, True, "en")
 
     def with_volume(self, new_volume: int) -> 'UserSettings':
         return UserSettings(new_volume, self.lastStationId, self.notificationsEnabled, self.language)

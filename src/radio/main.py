@@ -1,3 +1,6 @@
+import sys
+import os
+import threading
 from pathlib import Path
 from rich.prompt import Prompt
 from src.radio.config import RadioConfig
@@ -15,9 +18,7 @@ from src.radio.commands_playback import PlaybackCommands
 from src.radio.commands_management import ManagementCommands
 from src.radio import ui
 
-from typing import Optional
-
-def ensure_language(config: RadioConfig) -> Optional[str]:
+def ensure_language(config: RadioConfig) -> str:
     settings_path = Path(config.settings_file)
     if settings_path.exists():
         try:
@@ -76,7 +77,7 @@ def main():
 
     # 5. Register Commands
     basic_cmds = BasicCommands(shell, station_service, stats_service, system_service, player)
-    PlaybackCommands(shell, station_service, settings_service, stats_service, player, basic_cmds)
+    playback_cmds = PlaybackCommands(shell, station_service, settings_service, stats_service, player, basic_cmds)
     ManagementCommands(shell, station_service, radio_browser, notification_service, player, settings_service)
 
     # 6. Run the Shell Loop

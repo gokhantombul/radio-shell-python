@@ -1,6 +1,5 @@
 import json
 import os
-from typing import Optional
 from pathlib import Path
 from src.radio.config import RadioConfig
 from src.radio.models import UserSettings
@@ -18,7 +17,7 @@ class SettingsService:
         self.settings = self.settings.with_volume(volume)
         self.save()
 
-    def get_last_station_id(self) -> Optional[str]:
+    def get_last_station_id(self) -> str:
         return self.settings.lastStationId
 
     def set_last_station_id(self, station_id: str):
@@ -50,7 +49,7 @@ class SettingsService:
                     volume=data.get('volume', 100),
                     lastStationId=data.get('lastStationId'),
                     notificationsEnabled=data.get('notificationsEnabled', True),
-                    language=data.get('language', 'tr')
+                    language=data.get('language', 'en')
                 )
         except Exception:
             pass

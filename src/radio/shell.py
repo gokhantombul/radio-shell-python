@@ -1,8 +1,10 @@
+import sys
 import shlex
+import time
 from datetime import datetime
-from typing import Dict, Callable, Iterable, Optional
+from typing import Dict, Callable, List, Iterable, Optional
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import Completer, Completion
+from prompt_toolkit.completion import Completer, Completion, WordCompleter
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.document import Document
 from prompt_toolkit.formatted_text import HTML
@@ -13,7 +15,7 @@ from src.radio.services.station_service import StationService
 from src.radio.player import AudioPlayer
 from src.radio.services.localization_service import L
 class ShellCommand:
-    def __init__(self, name: str, func: Callable, desc: str, category: Optional[str] = None, hint: str = ""):
+    def __init__(self, name: str, func: Callable, desc: str, category: str = None, hint: str = ""):
         self.name = name
         self.func = func
         self.desc_key = desc
@@ -41,6 +43,8 @@ class ShellCommand:
         if "_" in self.hint_key:
             return L.get(self.hint_key)
         return self.hint_key
+
+        self.hint = hint
 
 class RadioCompleter(Completer):
     def __init__(self, shell: 'InteractiveShell', station_service: StationService):
@@ -113,7 +117,7 @@ class InteractiveShell:
             'scrollbar.button':                       'bg:#2a4a2a',
         })
         
-        self.session: PromptSession = PromptSession(
+        self.session = PromptSession(
             history=InMemoryHistory(), 
             completer=self.completer,
             style=self.style

@@ -7,13 +7,12 @@ from src.radio.services.station_service import StationService
 from src.radio.services.radio_browser_service import RadioBrowserService, OnlineStation
 from src.radio.services.notification_service import NotificationService
 from src.radio.player import AudioPlayer
-from src.radio.services.settings_service import SettingsService
 from src.radio.models import RadioStation
 from src.radio import ui
 from src.radio.services.localization_service import L
 
 class ManagementCommands:
-    def __init__(self, shell: InteractiveShell, station_service: StationService, radio_browser: RadioBrowserService, notification_service: NotificationService, player: AudioPlayer, settings_service: SettingsService):
+    def __init__(self, shell: InteractiveShell, station_service: StationService, radio_browser: RadioBrowserService, notification_service: NotificationService, player: AudioPlayer, settings_service: 'SettingsService'):
         self.station_service = station_service
         self.radio_browser = radio_browser
         self.notification_service = notification_service
