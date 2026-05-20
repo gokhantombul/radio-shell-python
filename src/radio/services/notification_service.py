@@ -2,6 +2,7 @@ import platform
 import subprocess
 from src.radio.services.settings_service import SettingsService
 
+
 class NotificationService:
     def __init__(self, settings_service: SettingsService):
         self.settings_service = settings_service

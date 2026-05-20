@@ -1,10 +1,10 @@
 import os
-import json
 import tempfile
 import pytest
 from src.radio.config import RadioConfig
 from src.radio.services.station_service import StationService
 from src.radio.models import RadioStation
+
 
 @pytest.fixture
 def temp_config():
@@ -13,6 +13,7 @@ def temp_config():
         config.favorites_file = os.path.join(d, "favs.json")
         config.custom_stations_file = os.path.join(d, "custom.json")
         yield config
+
 
 def test_custom_stations(temp_config):
     service = StationService(temp_config)
@@ -27,6 +28,7 @@ def test_custom_stations(temp_config):
     service2.init()
     assert len(service2.custom_stations) == 1
     assert service2.custom_stations[0].id == "c1"
+
 
 def test_favorites(temp_config):
     service = StationService(temp_config)

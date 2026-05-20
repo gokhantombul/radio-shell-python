@@ -1,8 +1,6 @@
-from typing import Dict
-
 class LocalizationService:
     _instance = None
-    
+
     # Supported languages
     LANGUAGES = {
         "en": "English",
@@ -624,7 +622,7 @@ class LocalizationService:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super(LocalizationService, cls).__new__(cls)
-            cls._instance.current_lang = "en"
+            cls._instance.current_lang = "tr"
         return cls._instance
 
     def set_language(self, lang: str):
@@ -640,6 +638,7 @@ class LocalizationService:
             except Exception:
                 return text
         return text
+
 
 # Global instance
 L = LocalizationService()

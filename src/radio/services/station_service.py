@@ -7,6 +7,7 @@ import uuid
 from src.radio.config import RadioConfig
 from src.radio.models import RadioStation
 
+
 class StationService:
     def __init__(self, config: RadioConfig):
         self.config = config

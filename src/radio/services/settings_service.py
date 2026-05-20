@@ -1,8 +1,10 @@
 import json
 import os
+from typing import Optional
 from pathlib import Path
 from src.radio.config import RadioConfig
 from src.radio.models import UserSettings
+
 
 class SettingsService:
     def __init__(self, config: RadioConfig):
@@ -17,7 +19,7 @@ class SettingsService:
         self.settings = self.settings.with_volume(volume)
         self.save()
 
-    def get_last_station_id(self) -> str:
+    def get_last_station_id(self) -> Optional[str]:
         return self.settings.lastStationId
 
     def set_last_station_id(self, station_id: str):

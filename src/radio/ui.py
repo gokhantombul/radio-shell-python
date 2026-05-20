@@ -15,6 +15,7 @@ from src.radio.services.localization_service import L
 # Use global console
 console = Console()
 
+
 class Theme:
     def __init__(self, primary: str, secondary: str, highlight: str, success: str, error: str):
         self.primary = primary
@@ -22,6 +23,7 @@ class Theme:
         self.highlight = highlight
         self.success = success
         self.error = error
+
 
 THEMES = {
     "default": Theme("cyan", "blue", "magenta", "green", "red"),
@@ -32,8 +34,10 @@ THEMES = {
 
 current_theme = THEMES["default"]
 
+
 def _get_theme_file_path() -> Path:
     return Path.home() / ".radio-shell" / "theme"
+
 
 def load_theme():
     global current_theme
@@ -45,6 +49,7 @@ def load_theme():
                 current_theme = THEMES[saved_theme]
         except Exception:
             pass
+
 
 def set_theme(theme_name: str) -> bool:
     global current_theme
@@ -59,14 +64,16 @@ def set_theme(theme_name: str) -> bool:
         return True
     return False
 
+
 def get_themes() -> List[str]:
     return list(THEMES.keys())
+
 
 def print_banner():
     width = 66
     app_title = L.get("app_title")
     padding_title = (width - len(app_title) - 10) // 2
-    
+
     banner = f"""
   ╔{"═" * width}╗
   ║{" " * 18} ♬  ░░░ RADIO SHELL ░░░  ♬ {" " * (width - 45)}║
@@ -76,12 +83,13 @@ def print_banner():
 """
     console.print(Text(banner, style=current_theme.primary))
 
+
 def print_header(title: str):
     ui_text = Text()
     ui_text.append(" ❯❯ ", style=f"bold {current_theme.highlight}")
     ui_text.append(title, style=f"bold {current_theme.primary}")
     ui_text.append(" ❮❮ ", style=f"bold {current_theme.highlight}")
-    
+
     panel = Panel(
         ui_text,
         box=box.HORIZONTALS,
@@ -91,14 +99,18 @@ def print_header(title: str):
     )
     console.print(panel)
 
+
 def print_error(msg: str):
     console.print(f"[{current_theme.error}]  ✘ {msg}[/]")
+
 
 def print_success(msg: str):
     console.print(f"[{current_theme.success}]  ✔ {msg}[/]")
 
+
 def print_info(msg: str):
     console.print(f"[{current_theme.highlight}]  ℹ {msg}[/]")
+
 
 def show_connecting_progress(station_name: str):
     """Displays a modern connecting progress bar animation."""
@@ -115,6 +127,7 @@ def show_connecting_progress(station_name: str):
             # Random advance for a more realistic feel (approx 2 seconds total)
             progress.update(task, advance=random.randint(1, 4))
             time.sleep(0.05)
+
 
 def print_station_table(title: str, stations: List[RadioStation], subtitle: Optional[str] = None):
     if not stations:
@@ -146,7 +159,7 @@ def print_station_table(title: str, stations: List[RadioStation], subtitle: Opti
         fav_icon = f"[{current_theme.highlight}]★[/]" if s.favorite else "[dim]☆[/]"
         # Add a small radio icon before name for aesthetics
         name_with_icon = f"📻 {s.name}"
-        
+
         table.add_row(
             str(idx),
             s.id,
@@ -155,12 +168,13 @@ def print_station_table(title: str, stations: List[RadioStation], subtitle: Opti
             s.genre or "-",
             fav_icon
         )
-    
+
     console.print(table)
     console.print(f"  [dim]{L.get('total_stations', count=len(stations))}[/]")
     if subtitle:
         console.print(f"  [{current_theme.highlight}]ℹ  {subtitle}[/]")
     console.print()
+
 
 def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_recording: bool):
     content = f"[{current_theme.primary}]{L.get('station')}:[/] {station.name}\n"

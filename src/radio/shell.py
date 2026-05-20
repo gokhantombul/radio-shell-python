@@ -1,10 +1,8 @@
-import sys
 import shlex
-import time
 from datetime import datetime
-from typing import Dict, Callable, List, Iterable, Optional
+from typing import Dict, Callable, Iterable, Optional
 from prompt_toolkit import PromptSession
-from prompt_toolkit.completion import Completer, Completion, WordCompleter
+from prompt_toolkit.completion import Completer, Completion
 from prompt_toolkit.history import InMemoryHistory
 from prompt_toolkit.document import Document
 from prompt_toolkit.formatted_text import HTML
@@ -14,8 +12,10 @@ from src.radio import ui
 from src.radio.services.station_service import StationService
 from src.radio.player import AudioPlayer
 from src.radio.services.localization_service import L
+
+
 class ShellCommand:
-    def __init__(self, name: str, func: Callable, desc: str, category: str = None, hint: str = ""):
+    def __init__(self, name: str, func: Callable, desc: str, category: Optional[str] = None, hint: str = ""):
         self.name = name
         self.func = func
         self.desc_key = desc
@@ -44,7 +44,6 @@ class ShellCommand:
             return L.get(self.hint_key)
         return self.hint_key
 
-        self.hint = hint
 
 class RadioCompleter(Completer):
     def __init__(self, shell: 'InteractiveShell', station_service: StationService):
@@ -100,25 +99,26 @@ class RadioCompleter(Completer):
                 if last_word in t.lower():
                     yield Completion(t, start_position=-len(last_word))
 
+
 class InteractiveShell:
     def __init__(self, station_service: StationService):
         self.commands: Dict[str, ShellCommand] = {}
         self.station_service = station_service
         self.completer = RadioCompleter(self, station_service)
-        
+
         self.style = Style.from_dict({
             'bottom-toolbar':                         'noinherit bg:#1e2030 fg:#9aa5ce',
             'completion-menu':                        'bg:#0d1117 fg:#7ee787',
             'completion-menu.completion':             'bg:#0d1117 fg:#7ee787',
             'completion-menu.completion.current':     'bg:#1a2e1a fg:#b9f4b9 bold',
             'completion-menu.meta.completion':        'bg:#0d1117 fg:#4a8a4a',
-            'completion-menu.meta.completion.current':'bg:#1a2e1a fg:#7ee787',
+            'completion-menu.meta.completion.current': 'bg:#1a2e1a fg:#7ee787',
             'scrollbar.background':                   'bg:#0d1117',
             'scrollbar.button':                       'bg:#2a4a2a',
         })
-        
-        self.session = PromptSession(
-            history=InMemoryHistory(), 
+
+        self.session: PromptSession = PromptSession(
+            history=InMemoryHistory(),
             completer=self.completer,
             style=self.style
         )
@@ -219,14 +219,14 @@ class InteractiveShell:
         # Map rich colors to prompt_toolkit ansi colors roughly
         # Defaulting to some safe ones if theme doesn't match perfectly
         ansi_primary = "ansicyan" if primary_color == "cyan" else "ansigreen"
-        
+
         if not self.player or not self.player.is_playing():
             return HTML(f'<{ansi_primary}>📻 radio</{ansi_primary}> <ansired>❯</ansired> ')
-        
+
         station = self.player.current_station
         station_name = station.name if station else "Radyo"
         song = self.player.current_song
-        
+
         if song:
             return HTML(f'<{ansi_primary}>📻 {station_name}</{ansi_primary}> <ansiyellow>({song})</ansiyellow> <ansired>❯</ansired> ')
         else:
@@ -235,19 +235,19 @@ class InteractiveShell:
     def run(self, player: Optional[AudioPlayer] = None):
         self.player = player
         ui.print_banner()
-        
+
         # Center the welcome message relative to the banner width (approx 70 chars)
         welcome_msg = L.get("welcome_msg")
         ui.console.print(f"{' ' * 10}{welcome_msg}\n")
-        
+
         while self.running:
             try:
                 text = self.session.prompt(
-                    message=self._get_prompt, 
+                    message=self._get_prompt,
                     bottom_toolbar=self._get_bottom_toolbar if self.player else None,
                     refresh_interval=1.0
                 ).strip()
-                
+
                 if not text:
                     continue
 
@@ -273,4 +273,3 @@ class InteractiveShell:
                 break
             except Exception as e:
                 ui.print_error(L.get("shell_error", error=e))
-

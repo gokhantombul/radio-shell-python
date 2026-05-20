@@ -1,11 +1,13 @@
 from src.radio.models import RadioStation, UserSettings
 
+
 def test_radio_station():
     station = RadioStation("id1", "Test", "TR", "Pop", "http://test")
     assert station.favorite is False
     fav = station.with_favorite(True)
     assert fav.favorite is True
     assert fav.id == "id1"
+
 
 def test_user_settings():
     settings = UserSettings.defaults()

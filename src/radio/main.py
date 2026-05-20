@@ -1,6 +1,3 @@
-import sys
-import os
-import threading
 from pathlib import Path
 from rich.prompt import Prompt
 from src.radio.config import RadioConfig
@@ -18,7 +15,10 @@ from src.radio.commands_playback import PlaybackCommands
 from src.radio.commands_management import ManagementCommands
 from src.radio import ui
 
-def ensure_language(config: RadioConfig) -> str:
+from typing import Optional
+
+
+def ensure_language(config: RadioConfig) -> Optional[str]:
     settings_path = Path(config.settings_file)
     if settings_path.exists():
         try:
@@ -26,20 +26,21 @@ def ensure_language(config: RadioConfig) -> str:
             with open(settings_path, 'r', encoding='utf-8') as f:
                 data = json.load(f)
                 if 'language' in data:
-                    return None # Language is already set
+                    return None  # Language is already set
         except Exception:
             pass
-    
+
     ui.print_header("LANGUAGE SELECTION / DİL SEÇİMİ")
     ui.console.print("\n  Please select your language / Lütfen dilinizi seçin:\n")
-    
+
     options = []
     for code, name in L.LANGUAGES.items():
         ui.console.print(f"  [bold cyan]{code}[/] - {name}")
         options.append(code)
-    
+
     choice = Prompt.ask("\n  Selection", choices=options, default="en")
     return choice
+
 
 def main():
     # 1. Initialize Configuration
@@ -68,7 +69,7 @@ def main():
 
     # 3. Initialize Player
     player = AudioPlayer(config, notification_service)
-    
+
     # System Service
     system_service = SystemService(player)
 
@@ -77,7 +78,7 @@ def main():
 
     # 5. Register Commands
     basic_cmds = BasicCommands(shell, station_service, stats_service, system_service, player)
-    playback_cmds = PlaybackCommands(shell, station_service, settings_service, stats_service, player, basic_cmds)
+    PlaybackCommands(shell, station_service, settings_service, stats_service, player, basic_cmds)
     ManagementCommands(shell, station_service, radio_browser, notification_service, player, settings_service)
 
     # 6. Run the Shell Loop
@@ -86,6 +87,7 @@ def main():
     finally:
         # 7. Cleanup
         player.stop()
+
 
 if __name__ == "__main__":
     main()

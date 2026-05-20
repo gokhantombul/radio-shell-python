@@ -1,6 +1,7 @@
 from dataclasses import dataclass, field
 from typing import List, Optional
 
+
 @dataclass
 class RadioStation:
     id: str
@@ -12,6 +13,7 @@ class RadioStation:
 
     def with_favorite(self, fav: bool) -> 'RadioStation':
         return RadioStation(self.id, self.name, self.country, self.genre, self.url, fav)
+
 
 @dataclass
 class UserSettings:
@@ -35,6 +37,7 @@ class UserSettings:
 
     def with_language(self, language: str) -> 'UserSettings':
         return UserSettings(self.volume, self.lastStationId, self.notificationsEnabled, language)
+
 
 @dataclass
 class StationList:

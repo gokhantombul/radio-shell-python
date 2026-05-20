@@ -2,14 +2,17 @@ from pathlib import Path
 from dataclasses import dataclass, field
 from typing import List
 
+
 @dataclass
 class PlayerConfig:
     command: str = "ffplay"
     args: List[str] = field(default_factory=lambda: ["-nodisp", "-hide_banner", "-loglevel", "quiet", "-autoexit"])
 
+
 @dataclass
 class StationsConfig:
-    file: str = "stations.json" # Relative to application if bundled, or absolute
+    file: str = "stations.json"  # Relative to application if bundled, or absolute
+
 
 class RadioConfig:
     def __init__(self):

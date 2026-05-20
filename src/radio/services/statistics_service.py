@@ -8,6 +8,7 @@ from datetime import timedelta
 from src.radio.config import RadioConfig
 from src.radio.models import RadioStation
 
+
 @dataclass
 class StationStat:
     stationId: str
@@ -16,6 +17,7 @@ class StationStat:
     genre: str
     totalSeconds: int
     sessionCount: int
+
 
 class StatisticsService:
     MIN_SESSION_SECONDS = 30

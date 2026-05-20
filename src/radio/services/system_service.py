@@ -4,6 +4,7 @@ import platform
 from typing import Dict, Any
 from src.radio.player import AudioPlayer
 
+
 class SystemService:
     def __init__(self, player: AudioPlayer):
         self.player = player
@@ -13,11 +14,11 @@ class SystemService:
         """Returns memory usage of the current process and its children (like ffplay)."""
         # Main process memory
         main_mem = self.process.memory_info().rss
-        
+
         # Child processes memory (ffplay)
         children_mem = 0
         children_list = []
-        
+
         for child in self.process.children(recursive=True):
             try:
                 name = child.name()

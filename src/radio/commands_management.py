@@ -6,13 +6,15 @@ from src.radio.shell import InteractiveShell
 from src.radio.services.station_service import StationService
 from src.radio.services.radio_browser_service import RadioBrowserService, OnlineStation
 from src.radio.services.notification_service import NotificationService
+from src.radio.services.settings_service import SettingsService
 from src.radio.player import AudioPlayer
 from src.radio.models import RadioStation
 from src.radio import ui
 from src.radio.services.localization_service import L
 
+
 class ManagementCommands:
-    def __init__(self, shell: InteractiveShell, station_service: StationService, radio_browser: RadioBrowserService, notification_service: NotificationService, player: AudioPlayer, settings_service: 'SettingsService'):
+    def __init__(self, shell: InteractiveShell, station_service: StationService, radio_browser: RadioBrowserService, notification_service: NotificationService, player: AudioPlayer, settings_service: SettingsService):
         self.station_service = station_service
         self.radio_browser = radio_browser
         self.notification_service = notification_service
@@ -88,7 +90,8 @@ class ManagementCommands:
         parser.add_argument("-i", "--id")
         try:
             parsed, _ = parser.parse_known_args(args)
-            stations = [self.station_service.get_station(parsed.id)] if parsed.id else self.station_service.get_all_stations()
+            stations = [self.station_service.get_station(
+                parsed.id)] if parsed.id else self.station_service.get_all_stations()
             stations = [s for s in stations if s]
 
             if not stations:

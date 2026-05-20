@@ -3,6 +3,7 @@ import urllib.parse
 from dataclasses import dataclass
 from typing import List
 
+
 @dataclass
 class OnlineStation:
     uuid: str
@@ -22,6 +23,7 @@ class OnlineStation:
 
     def country_display(self) -> str:
         return self.country if self.country and self.country.strip() else "Bilinmiyor"
+
 
 class RadioBrowserService:
     API_BASE = "https://de1.api.radio-browser.info/json"

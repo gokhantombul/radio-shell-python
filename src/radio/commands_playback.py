@@ -12,13 +12,14 @@ from src.radio.player import AudioPlayer
 from src.radio import ui
 from src.radio.services.localization_service import L
 
+
 class PlaybackCommands:
     def __init__(self, shell: InteractiveShell, station_service: StationService, settings_service: SettingsService, stats_service: StatisticsService, player: AudioPlayer, basic_cmds):
         self.station_service = station_service
         self.settings_service = settings_service
         self.stats_service = stats_service
         self.player = player
-        self.basic_cmds = basic_cmds # To access last_list for next/prev
+        self.basic_cmds = basic_cmds  # To access last_list for next/prev
 
         self.sleep_timer: Optional[threading.Timer] = None
         self.session_start: Optional[datetime] = None

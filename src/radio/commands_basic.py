@@ -10,6 +10,7 @@ from src.radio.player import AudioPlayer
 from src.radio import ui
 from src.radio.services.localization_service import L
 
+
 class BasicCommands:
     def __init__(self, shell: InteractiveShell, station_service: StationService, stats_service: StatisticsService, system_service: SystemService, player: AudioPlayer):
         self.station_service = station_service
@@ -60,7 +61,8 @@ class BasicCommands:
         ui.print_station_table(L.get("all_stations"), shown, subtitle=subtitle)
 
     def cmd_turkiye(self, args: List[str]):
-        stations = [s for s in self.station_service.get_all_stations() if s.country and s.country.lower() in ("türkiye", "turkey")]
+        stations = [s for s in self.station_service.get_all_stations() if s.country and s.country.lower()
+                    in ("türkiye", "turkey")]
         self._update_last(stations)
         ui.print_station_table(L.get("tr_stations"), stations)
 
@@ -79,7 +81,8 @@ class BasicCommands:
         parser.add_argument("-i", "--isim", required=True)
         try:
             parsed = parser.parse_args(args)
-            stations = [s for s in self.station_service.get_all_stations() if s.country and s.country.lower() == parsed.isim.lower()]
+            stations = [s for s in self.station_service.get_all_stations() if s.country and s.country.lower()
+                        == parsed.isim.lower()]
             self._update_last(stations)
             ui.print_station_table(f"{L.get('country')}: {parsed.isim}", stations)
         except SystemExit:
@@ -92,7 +95,8 @@ class BasicCommands:
             return
         ui.console.print(f"[cyan]{L.get('genres_list')}:[/]")
         for g in genres:
-            count = len([s for s in self.station_service.get_all_stations() if s.genre and g.lower() in s.genre.lower()])
+            count = len([s for s in self.station_service.get_all_stations()
+                        if s.genre and g.lower() in s.genre.lower()])
             ui.console.print(f"  - {g} ({count} {L.get('station').lower()})")
 
     def cmd_tur(self, args: List[str]):
@@ -100,7 +104,8 @@ class BasicCommands:
         parser.add_argument("-i", "--isim", required=True)
         try:
             parsed = parser.parse_args(args)
-            stations = [s for s in self.station_service.get_all_stations() if s.genre and parsed.isim.lower() in s.genre.lower()]
+            stations = [s for s in self.station_service.get_all_stations() if s.genre and parsed.isim.lower()
+                        in s.genre.lower()]
             self._update_last(stations)
             ui.print_station_table(f"{L.get('genre')}: {parsed.isim}", stations)
         except SystemExit:
@@ -152,7 +157,7 @@ class BasicCommands:
     def cmd_sistem(self, args: List[str]):
         mem = self.system_service.get_memory_info()
         stats = self.system_service.get_system_stats()
-        
+
         from rich.panel import Panel
         from rich.table import Table
         from rich.columns import Columns
@@ -160,21 +165,24 @@ class BasicCommands:
         # Memory Table
         mem_table = Table(show_header=False, box=None)
         mem_table.add_row("Radio Shell (Python):", self.system_service.format_bytes(mem["main_process"]))
-        
+
         for child in mem["children_processes"]:
-            mem_table.add_row(f"{child['name']} ({L.get('cat_playback')}):", self.system_service.format_bytes(child["memory"]))
-        
+            mem_table.add_row(f"{child['name']} ({L.get('cat_playback')}):",
+                              self.system_service.format_bytes(child["memory"]))
+
         mem_table.add_section()
-        mem_table.add_row(f"[bold]{L.get('sys_total_mem')}:[/]", f"[bold cyan]{self.system_service.format_bytes(mem['total_memory'])}[/]")
+        mem_table.add_row(f"[bold]{L.get('sys_total_mem')}:[/]",
+                          f"[bold cyan]{self.system_service.format_bytes(mem['total_memory'])}[/]")
 
         # System Info Table
         sys_table = Table(show_header=False, box=None)
         sys_table.add_row(f"{L.get('sys_os')}:", stats["os"])
         sys_table.add_row(f"{L.get('sys_python')}:", stats["python_version"])
         sys_table.add_row(f"{L.get('sys_cpu')}:", f"%{stats['cpu_percent']}")
-        
+
         sys_mem = stats["virtual_memory"]
-        sys_table.add_row(f"{L.get('sys_ram')}:", f"{self.system_service.format_bytes(sys_mem['used'])} / {self.system_service.format_bytes(sys_mem['total'])}")
+        sys_table.add_row(
+            f"{L.get('sys_ram')}:", f"{self.system_service.format_bytes(sys_mem['used'])} / {self.system_service.format_bytes(sys_mem['total'])}")
 
         ui.console.print(Panel(
             Columns([mem_table, sys_table]),

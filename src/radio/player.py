@@ -11,6 +11,7 @@ from src.radio.models import RadioStation
 from src.radio.services.notification_service import NotificationService
 from src.radio.services.localization_service import L
 
+
 class AudioPlayer:
     def __init__(self, config: RadioConfig, notification_service: NotificationService):
         self.config = config
@@ -176,10 +177,10 @@ class AudioPlayer:
                 self.record_process.wait(timeout=2)
             except Exception:
                 self.record_process.kill()
-        
+
         self.record_process = None
         self.current_record_path = None
-        
+
         if saved_path:
             return L.get("msg_recording_stopped", path=saved_path)
         return L.get("msg_recording_stopped_simple")
@@ -223,7 +224,7 @@ class AudioPlayer:
                 if match_audio:
                     codec_raw = match_audio.group(1).split(' ')[0].strip().upper()
                     self.codec = "AAC" if "AAC" in codec_raw else codec_raw
-                    
+
                     sample_hz = match_audio.group(2).strip()
                     if "Hz" in sample_hz:
                         try:
@@ -238,7 +239,7 @@ class AudioPlayer:
                         self.sample_rate = sample_hz
 
                     self.channels = match_audio.group(3).strip()
-                    
+
                     # Try to find bitrate in the same line
                     match_bitrate = bitrate_pattern.search(line)
                     if match_bitrate:
