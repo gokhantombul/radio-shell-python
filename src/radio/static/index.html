@@ -4,73 +4,117 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Radio Shell Web</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1000/1000858.png">
 </head>
-<body>
-    <!-- Top Action Buttons -->
+<body data-theme="shell-glass">
+    <div class="ambient-bg" aria-hidden="true">
+        <span class="wave wave-1"></span>
+        <span class="wave wave-2"></span>
+        <span class="wave wave-3"></span>
+        <span class="grid-glow"></span>
+    </div>
+
     <div class="top-actions">
-        <select id="language-select" class="lang-selector glass">
-            <option value="">Dil / Lang</option>
-        </select>
-        <button id="system-btn" class="action-btn glass" aria-label="Sistem Bilgisi" title="Sistem Bilgisi">⚙️</button>
-        <button id="theme-toggle" class="action-btn glass" aria-label="Temayı Değiştir" title="Temayı Değiştir">
-            <span id="theme-icon">☀️</span>
+        <label class="control-select glass" for="theme-select">
+            <span class="control-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img"><path d="M12 3a9 9 0 0 0 0 18h1.2a2.4 2.4 0 0 0 1.7-4.1 1.7 1.7 0 0 1 1.2-2.9h.9A4 4 0 0 0 21 10c0-3.9-4-7-9-7Zm-4 9.2a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4Zm2.3-4a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4Zm3.4 0a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4Zm2.3 4a1.2 1.2 0 1 1 0-2.4 1.2 1.2 0 0 1 0 2.4Z"/></svg>
+            </span>
+            <select id="theme-select" aria-label="Tema">
+                <option value="shell-glass" data-i18n="web_theme_shell">Shell Glass</option>
+                <option value="premium-radio" data-i18n="web_theme_premium">Premium Radio</option>
+                <option value="compact-dashboard" data-i18n="web_theme_compact">Compact Dashboard</option>
+                <option value="neon-live" data-i18n="web_theme_neon">Neon Live</option>
+                <option value="midnight" data-i18n="web_theme_midnight">Midnight</option>
+                <option value="sakura" data-i18n="web_theme_sakura">Sakura</option>
+                <option value="retro-crt" data-i18n="web_theme_retro">Retro CRT</option>
+                <option value="brutalist" data-i18n="web_theme_brutalist">Brutalist</option>
+                <option value="theme-car" data-i18n="web_theme_car">Vintage Car Radio</option>
+                <option value="theme-win95" data-i18n="web_theme_win95">Windows 95 Winamp</option>
+                <option value="winamp-classic" data-i18n="web_theme_winamp_classic">Winamp Classic</option>
+            </select>
+        </label>
+        <label class="control-select glass" for="language-select">
+            <span class="control-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" role="img"><path d="M12.9 17.6a13 13 0 0 0 3-5.6H19v-2h-6V7h-2v3H5v2h8.8a10.7 10.7 0 0 1-2.1 4 13 13 0 0 1-1.4-2.2H8.1a15 15 0 0 0 2.1 3.7l-3.1 3.1L8.5 22l3-3a15.8 15.8 0 0 0 3 2.1l.9-1.8a12.7 12.7 0 0 1-2.5-1.7ZM17 2h-2l-4 9h2.1l.8-2h4.2l.8 2H21l-4-9Zm-2.3 5 1.3-3.2L17.3 7h-2.6Z"/></svg>
+            </span>
+            <select id="language-select" aria-label="Dil / Lang">
+                <option value="">Dil / Lang</option>
+            </select>
+        </label>
+        <button id="system-btn" class="action-btn glass" aria-label="Sistem Bilgisi" title="Sistem Bilgisi">
+            <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M12 8.4a3.6 3.6 0 1 0 0 7.2 3.6 3.6 0 0 0 0-7.2Zm8.8 4.6v-2l-2.2-.4a7.5 7.5 0 0 0-.7-1.7l1.3-1.8-1.4-1.4L16 7a7 7 0 0 0-1.7-.7L14 4h-2l-.4 2.3a7 7 0 0 0-1.7.7L8.1 5.7 6.7 7.1 8 8.9a7.5 7.5 0 0 0-.7 1.7L5 11v2l2.3.4c.2.6.4 1.2.7 1.7l-1.3 1.8 1.4 1.4 1.8-1.3c.5.3 1.1.6 1.7.7L12 20h2l.4-2.3c.6-.2 1.2-.4 1.7-.7l1.8 1.3 1.4-1.4-1.3-1.8c.3-.5.6-1.1.7-1.7l2.1-.4Z"/></svg>
         </button>
     </div>
 
-    <!-- Background animations -->
-    <div class="bg-shape shape1"></div>
-    <div class="bg-shape shape2"></div>
-
     <div class="container">
-        <header>
-            <h1 class="glow-text">📻 Radio Shell</h1>
-            <p class="subtitle" data-i18n="web_subtitle">Terminal FM Radio Player - Web Edition</p>
-            
-            <div id="now-playing" class="now-playing hidden glass">
+        <header class="hero">
+            <div class="brand-lockup">
+                <div class="brand-mark" aria-hidden="true">
+                    <svg viewBox="0 0 64 64" role="img"><path d="M22 48h20a10 10 0 0 0 10-10V24a10 10 0 0 0-10-10H22a10 10 0 0 0-10 10v14a10 10 0 0 0 10 10Zm10-7a10 10 0 1 1 0-20 10 10 0 0 1 0 20Zm0-6a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm14-11h-7v-4h7v4Zm0 8h-7v-4h7v4Z"/></svg>
+                </div>
+                <div>
+                    <h1>Radio Shell</h1>
+                    <p class="subtitle" data-i18n="web_subtitle">Terminal FM Radio Player - Web Edition</p>
+                </div>
+            </div>
+
+            <section id="now-playing" class="now-playing glass hidden" aria-live="polite">
                 <div class="playing-info">
-                    <div class="equalizer" id="equalizer">
-                        <span class="bar bar-1"></span>
-                        <span class="bar bar-2"></span>
-                        <span class="bar bar-3"></span>
-                        <span class="bar bar-4"></span>
-                        <span class="bar bar-5"></span>
+                    <div class="signal-dial" aria-hidden="true">
+                        <div class="equalizer paused" id="equalizer">
+                            <span class="bar bar-1"></span>
+                            <span class="bar bar-2"></span>
+                            <span class="bar bar-3"></span>
+                            <span class="bar bar-4"></span>
+                            <span class="bar bar-5"></span>
+                        </div>
                     </div>
                     <div class="info-content">
-                        <span class="label" data-i18n="web_now_playing">ŞU AN ÇALIYOR</span>
+                        <span class="eyebrow" data-i18n="web_now_playing">ŞU AN ÇALIYOR</span>
                         <span id="current-station-name" class="station-name">-</span>
                         <div id="current-song-title" class="song-title"></div>
+                        <div class="status-row">
+                            <span class="live-pill" data-i18n="web_live">Canlı Yayın</span>
+                            <span id="recording-pill" class="recording-pill hidden" data-i18n="web_recording">Kayıt</span>
+                        </div>
                     </div>
                 </div>
                 <div class="controls">
-                    <button id="record-btn" class="btn btn-record" title="Kaydı Başlat/Durdur">
-                        <span class="record-icon">⏺</span>
+                    <button id="record-btn" class="btn btn-record" title="Kaydı Başlat/Durdur" aria-label="Kaydı Başlat/Durdur">
+                        <span class="record-dot" aria-hidden="true"></span>
+                        <span class="record-text" data-i18n="web_record">Kaydet</span>
                     </button>
                     <div class="volume-wrapper">
-                        <span class="vol-icon">🔉</span>
-                        <input type="range" id="volume-slider" min="0" max="100" value="100" class="styled-slider">
-                        <span class="vol-icon">🔊</span>
+                        <span class="vol-icon" aria-hidden="true">
+                            <svg viewBox="0 0 24 24" role="img"><path d="M4 9v6h4l5 4V5L8 9H4Zm12.5 6.7 1.4 1.4A7 7 0 0 0 20 12a7 7 0 0 0-2.1-5.1l-1.4 1.4A5 5 0 0 1 18 12a5 5 0 0 1-1.5 3.7Z"/></svg>
+                        </span>
+                        <input type="range" id="volume-slider" min="0" max="100" value="100" class="styled-slider" aria-label="Ses">
+                        <span id="volume-value" class="volume-value">100%</span>
                     </div>
                     <button id="stop-btn" class="btn btn-stop">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                            <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>
-                        </svg>
+                        <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="2"/></svg>
                         <span data-i18n="web_stop">Durdur</span>
                     </button>
                 </div>
-            </div>
+            </section>
         </header>
 
         <main>
-            <div class="search-bar glass">
-                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-                <input type="text" id="search-input" data-i18n-placeholder="web_search_placeholder" placeholder="Bir radyo istasyonu veya tür ara...">
-            </div>
-            
+            <section class="discovery glass">
+                <div class="search-bar">
+                    <svg class="search-icon" viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="M10.8 18.1a7.3 7.3 0 1 1 0-14.6 7.3 7.3 0 0 1 0 14.6Zm0-2a5.3 5.3 0 1 0 0-10.6 5.3 5.3 0 0 0 0 10.6Zm5.7.1 4 4-1.4 1.4-4-4 1.4-1.4Z"/></svg>
+                    <input type="text" id="search-input" data-i18n-placeholder="web_search_placeholder" placeholder="Bir radyo istasyonu veya tür ara...">
+                </div>
+                <div class="filter-row" id="filter-row" aria-label="İstasyon filtreleri">
+                    <button class="filter-chip active" type="button" data-filter-type="all" data-filter-value="" data-i18n="web_filter_all">Tümü</button>
+                    <button class="filter-chip" type="button" data-filter-type="favorites" data-filter-value="" data-i18n="web_filter_favorites">Favoriler</button>
+                </div>
+            </section>
+
             <div id="station-list" class="station-grid">
-                <div class="loader-container">
+                <div class="state-container">
                     <div class="spinner"></div>
                     <p data-i18n="web_stations_loading">İstasyonlar yükleniyor...</p>
                 </div>
@@ -78,12 +122,17 @@
         </main>
     </div>
 
-    <!-- System Modal -->
+    <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
     <div id="system-modal" class="modal hidden">
         <div class="modal-content glass">
-            <h2 data-i18n="web_system_status">Sistem Durumu</h2>
-            <div id="system-stats"><span data-i18n="web_loading">Yükleniyor...</span></div>
-            <button id="close-modal" class="btn" style="margin-top: 20px;" data-i18n="web_close">Kapat</button>
+            <div class="modal-header">
+                <h2 data-i18n="web_system_status">Sistem Durumu</h2>
+                <button id="close-modal" class="modal-close" aria-label="Kapat">
+                    <svg viewBox="0 0 24 24" role="img" aria-hidden="true"><path d="m6.4 5 12.6 12.6-1.4 1.4L5 6.4 6.4 5Zm12.6 1.4L6.4 19 5 17.6 17.6 5 19 6.4Z"/></svg>
+                </button>
+            </div>
+            <div id="system-stats" class="system-stats"><span data-i18n="web_loading">Yükleniyor...</span></div>
         </div>
     </div>
 

@@ -171,6 +171,8 @@ class InteractiveShell:
         SEP = '  <ansibrightblack>│</ansibrightblack>  '
 
         if not self.player or not self.player.is_playing():
+            if ui.is_current_theme("winamp-classic"):
+                return HTML('  <ansibrightgreen>▌▌ WINAMP CLASSIC</ansibrightgreen>  <ansiyellow>STOPPED</ansiyellow>  ')
             return HTML(f'  <ansibrightblack>⏹  {L.get("stopped")}</ansibrightblack>  ')
 
         p = self.player
@@ -203,6 +205,18 @@ class InteractiveShell:
         genre_part = f'{SEP}🏷  {genre}' if genre else ''
         rec_part = f'  <ansired>🔴  {L.get("recording")}</ansired>' if p.is_recording() else ''
 
+        if ui.is_current_theme("winamp-classic"):
+            title = song_title if p.current_song else L.get("waiting_song")
+            return HTML(
+                f'  <ansibrightgreen><b>▌▌  {station_name}</b></ansibrightgreen>'
+                f'  <ansiyellow>▶  {title}</ansiyellow>'
+                f'  <ansibrightblack>│</ansibrightblack>  <ansibrightgreen>{country}</ansibrightgreen>'
+                f'  <ansibrightblack>│</ansibrightblack>  <ansibrightblue>{codec_str}</ansibrightblue>'
+                f'  <ansibrightblack>│</ansibrightblack>  <ansiyellow>VOL {p.volume}%</ansiyellow>'
+                f'  <ansibrightblack>│</ansibrightblack>  {elapsed_str}'
+                f'{rec_part}  '
+            )
+
         return HTML(
             f'  <ansicyan><b>📻  {station_name}</b></ansicyan>'
             f'{song_part}'
@@ -214,11 +228,35 @@ class InteractiveShell:
             f'{rec_part}  '
         )
 
+    _RICH_TO_ANSI = {
+        "cyan": "ansicyan", "bold cyan": "ansicyan",
+        "bright_cyan": "ansicyan", "bold bright_cyan": "ansicyan",
+        "blue": "ansiblue", "bold blue": "ansiblue", "bright_blue": "ansiblue",
+        "green": "ansigreen", "bold green": "ansigreen",
+        "bright_green": "ansigreen", "bold bright_green": "ansigreen",
+        "magenta": "ansimagenta", "bold magenta": "ansimagenta",
+        "bright_magenta": "ansimagenta", "bold bright_magenta": "ansimagenta",
+        "yellow": "ansiyellow", "bold yellow": "ansiyellow", "bright_yellow": "ansiyellow",
+        "white": "ansiwhite", "bold white": "ansiwhite", "bright_white": "ansiwhite",
+        "#00ff66": "ansibrightgreen", "#2f5dff": "ansibrightblue",
+        "#ffb000": "ansiyellow", "#ff4048": "ansired",
+    }
+
     def _get_prompt(self):
+        if ui.is_current_theme("winamp-classic"):
+            if not self.player or not self.player.is_playing():
+                return HTML('<ansibrightgreen>▌▌ radio</ansibrightgreen> <ansiyellow>▶</ansiyellow> ')
+
+            station = self.player.current_station
+            station_name = station.name if station else "Radio"
+            song = self.player.current_song
+
+            if song:
+                return HTML(f'<ansibrightgreen>▌▌ {station_name}</ansibrightgreen> <ansiyellow>({song})</ansiyellow> <ansiyellow>▶</ansiyellow> ')
+            return HTML(f'<ansibrightgreen>▌▌ {station_name}</ansibrightgreen> <ansiyellow>▶</ansiyellow> ')
+
         primary_color = ui.current_theme.primary
-        # Map rich colors to prompt_toolkit ansi colors roughly
-        # Defaulting to some safe ones if theme doesn't match perfectly
-        ansi_primary = "ansicyan" if primary_color == "cyan" else "ansigreen"
+        ansi_primary = self._RICH_TO_ANSI.get(primary_color, "ansicyan")
 
         if not self.player or not self.player.is_playing():
             return HTML(f'<{ansi_primary}>📻 radio</{ansi_primary}> <ansired>❯</ansired> ')

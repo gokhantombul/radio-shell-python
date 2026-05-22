@@ -1,83 +1,49 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('theme-toggle');
-    const themeIcon = document.getElementById('theme-icon');
-
-    // Theme initialization
-    const savedTheme = localStorage.getItem('theme');
-    if (savedTheme === 'light' || (!savedTheme && window.matchMedia('(prefers-color-scheme: light)').matches)) {
-        document.body.classList.add('light-mode');
-        themeIcon.textContent = '🌙';
-    } else {
-        themeIcon.textContent = '☀️';
-    }
-
-    themeToggle.addEventListener('click', () => {
-        document.body.classList.toggle('light-mode');
-        const isLight = document.body.classList.contains('light-mode');
-        themeIcon.textContent = isLight ? '🌙' : '☀️';
-        localStorage.setItem('theme', isLight ? 'light' : 'dark');
-    });
+    const DEFAULT_THEME = 'shell-glass';
+    const THEMES = new Set(['shell-glass', 'premium-radio', 'compact-dashboard', 'neon-live', 'midnight', 'sakura', 'retro-crt', 'brutalist', 'theme-car', 'theme-win95', 'winamp-classic']);
 
     const stationList = document.getElementById('station-list');
     const searchInput = document.getElementById('search-input');
+    const filterRow = document.getElementById('filter-row');
     const nowPlaying = document.getElementById('now-playing');
     const stationNameDisplay = document.getElementById('current-station-name');
     const songTitleDisplay = document.getElementById('current-song-title');
     const stopBtn = document.getElementById('stop-btn');
     const recordBtn = document.getElementById('record-btn');
+    const recordingPill = document.getElementById('recording-pill');
     const volumeSlider = document.getElementById('volume-slider');
+    const volumeValue = document.getElementById('volume-value');
     const equalizer = document.getElementById('equalizer');
-    
     const langSelect = document.getElementById('language-select');
-    
-    // System Modal Elements
+    const themeSelect = document.getElementById('theme-select');
     const systemBtn = document.getElementById('system-btn');
     const systemModal = document.getElementById('system-modal');
     const closeModal = document.getElementById('close-modal');
     const systemStats = document.getElementById('system-stats');
+    const toastRegion = document.getElementById('toast-region');
 
     let allStations = [];
     let currentStationId = null;
     let isRecording = false;
+    let stationsLoaded = false;
     let locales = {};
+    let activeFilter = { type: 'all', value: '' };
 
-    async function fetchLocalization() {
-        try {
-            // Get current language and available languages
-            const langRes = await fetch('/api/language');
-            if (!langRes.ok) throw new Error('Language API error');
-            const langData = await langRes.json();
-            
-            // Populate select only if available exists
-            if (langData.available) {
-                // Clear and add placeholder if needed
-                langSelect.innerHTML = '';
-                
-                // Sort by name for better UX
-                const sortedLangs = Object.entries(langData.available).sort((a, b) => a[1].localeCompare(b[1]));
-                
-                for (const [code, name] of sortedLangs) {
-                    const opt = document.createElement('option');
-                    opt.value = code;
-                    // Ensure full name is used, fallback to code if name is missing
-                    opt.textContent = name || code.toUpperCase();
-                    if (code === langData.current) opt.selected = true;
-                    langSelect.appendChild(opt);
-                }
-            }
+    function t(key, fallback) {
+        return locales[key] || fallback;
+    }
 
-            // Get translations
-            const locRes = await fetch('/api/locales');
-            if (!locRes.ok) throw new Error('Locales API error');
-            locales = await locRes.json();
-            applyTranslations();
-        } catch (error) {
-            console.error('Localization error:', error);
-            // Fallback for dropdown if it's empty
-            if (langSelect.options.length === 0) {
-                langSelect.innerHTML = '<option value="en">English</option><option value="tr">Türkçe</option>';
-            }
-        }
+    function setTheme(theme) {
+        const selectedTheme = THEMES.has(theme) ? theme : DEFAULT_THEME;
+        document.body.dataset.theme = selectedTheme;
+        themeSelect.value = selectedTheme;
+        localStorage.setItem('radio-web-theme', selectedTheme);
+    }
+
+    function initTheme() {
+        const savedTheme = localStorage.getItem('radio-web-theme');
+        const initialTheme = savedTheme || DEFAULT_THEME;
+        setTheme(initialTheme);
     }
 
     function applyTranslations() {
@@ -85,228 +51,402 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = el.getAttribute('data-i18n');
             if (locales[key]) el.textContent = locales[key];
         });
+
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const key = el.getAttribute('data-i18n-placeholder');
             if (locales[key]) el.setAttribute('placeholder', locales[key]);
         });
     }
 
-    langSelect.addEventListener('change', async (e) => {
-        const newLang = e.target.value;
+    async function fetchLocalization() {
         try {
-            await fetch(`/api/language/${newLang}`, { method: 'POST' });
-            await fetchLocalization(); // Re-fetch translations
-            if (allStations.length === 0) {
-                 stationList.innerHTML = `<div class="loader-container"><p>${locales['web_stations_loading'] || 'Loading...'}</p></div>`;
+            const langRes = await fetch('/api/language');
+            if (!langRes.ok) throw new Error('Language API error');
+            const langData = await langRes.json();
+
+            if (langData.available) {
+                langSelect.innerHTML = '';
+                const sortedLangs = Object.entries(langData.available).sort((a, b) => a[1].localeCompare(b[1]));
+
+                for (const [code, name] of sortedLangs) {
+                    const opt = document.createElement('option');
+                    opt.value = code;
+                    opt.textContent = name || code.toUpperCase();
+                    if (code === langData.current) opt.selected = true;
+                    langSelect.appendChild(opt);
+                }
+            }
+
+            const locRes = await fetch('/api/locales');
+            if (!locRes.ok) throw new Error('Locales API error');
+            locales = await locRes.json();
+            applyTranslations();
+            buildFilters();
+            if (stationsLoaded) {
+                renderStations(getVisibleStations());
             }
         } catch (error) {
-            console.error('Error changing language:', error);
-        }
-    });
-
-    // Toggle favorite logic attached to global document
-    window.toggleFavorite = async function(e, id) {
-        e.stopPropagation(); // Prevent play action
-        try {
-            const response = await fetch(`/api/favorite/${id}`, { method: 'POST' });
-            const data = await response.json();
-            
-            // Update local state
-            const station = allStations.find(s => s.id === id);
-            if (station) station.is_favorite = data.is_favorite;
-            
-            // Re-render
-            const term = searchInput.value.toLowerCase();
-            const filtered = allStations.filter(s => 
-                s.name.toLowerCase().includes(term) || 
-                (s.genre && s.genre.toLowerCase().includes(term))
-            );
-            renderStations(filtered);
-        } catch (error) {
-            console.error('Error toggling favorite:', error);
-        }
-    };
-
-    // İstasyonları API'den çek
-    async function fetchStations() {
-        try {
-            const response = await fetch('/api/stations');
-            allStations = await response.json();
-            renderStations(allStations);
-        } catch (error) {
-            console.error('Error fetching stations:', error);
-            stationList.innerHTML = `<div class="loader-container"><p style="color: var(--stop-color);">${locales['msg_error'] || 'Error'}</p></div>`;
+            console.error('Localization error:', error);
+            if (langSelect.options.length === 0) {
+                langSelect.innerHTML = '<option value="en">English</option><option value="tr">Türkçe</option>';
+            }
         }
     }
 
-    // İstasyonları ekrana çiz
+    function showToast(message, type = 'info') {
+        const toast = document.createElement('div');
+        toast.className = `toast ${type === 'error' ? 'error' : ''}`;
+        toast.textContent = message;
+        toastRegion.appendChild(toast);
+
+        window.setTimeout(() => {
+            toast.style.opacity = '0';
+            toast.style.transform = 'translateY(8px)';
+            window.setTimeout(() => toast.remove(), 180);
+        }, 3200);
+    }
+
+    function renderState(message, isError = false) {
+        stationList.innerHTML = '';
+        const state = document.createElement('div');
+        state.className = 'state-container';
+        state.innerHTML = isError
+            ? `<p style="color: var(--danger);">${message}</p>`
+            : `<div class="spinner"></div><p>${message}</p>`;
+        stationList.appendChild(state);
+    }
+
+    async function fetchStations() {
+        renderState(t('web_stations_loading', 'Loading stations...'));
+        try {
+            const response = await fetch('/api/stations');
+            if (!response.ok) throw new Error('Stations API error');
+            allStations = await response.json();
+            stationsLoaded = true;
+            buildFilters();
+            renderStations(getVisibleStations());
+        } catch (error) {
+            console.error('Error fetching stations:', error);
+            renderState(t('msg_error', 'Error'), true);
+        }
+    }
+
+    function mostCommonValues(field, limit) {
+        const counts = new Map();
+        allStations.forEach(station => {
+            const value = (station[field] || '').trim();
+            if (!value || value === '-') return;
+            counts.set(value, (counts.get(value) || 0) + 1);
+        });
+
+        return Array.from(counts.entries())
+            .sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))
+            .slice(0, limit)
+            .map(([value]) => value);
+    }
+
+    function createFilterChip(type, value, label) {
+        const chip = document.createElement('button');
+        chip.type = 'button';
+        chip.className = `filter-chip ${activeFilter.type === type && activeFilter.value === value ? 'active' : ''}`;
+        chip.dataset.filterType = type;
+        chip.dataset.filterValue = value;
+        chip.textContent = label;
+        chip.addEventListener('click', () => {
+            activeFilter = { type, value };
+            buildFilters();
+            renderStations(getVisibleStations());
+        });
+        return chip;
+    }
+
+    function buildFilters() {
+        if (!filterRow) return;
+        filterRow.innerHTML = '';
+        filterRow.appendChild(createFilterChip('all', '', t('web_filter_all', 'All')));
+        filterRow.appendChild(createFilterChip('favorites', '', t('web_filter_favorites', 'Favorites')));
+
+        mostCommonValues('genre', 3).forEach(genre => {
+            filterRow.appendChild(createFilterChip('genre', genre, `${t('genre', 'Genre')}: ${genre}`));
+        });
+
+        mostCommonValues('country', 2).forEach(country => {
+            filterRow.appendChild(createFilterChip('country', country, `${t('country', 'Country')}: ${country}`));
+        });
+    }
+
+    function getVisibleStations() {
+        const term = searchInput.value.trim().toLowerCase();
+
+        return allStations.filter(station => {
+            const stationText = [
+                station.name,
+                station.genre,
+                station.country
+            ].filter(Boolean).join(' ').toLowerCase();
+
+            const matchesSearch = !term || stationText.includes(term);
+            const matchesFilter =
+                activeFilter.type === 'all' ||
+                (activeFilter.type === 'favorites' && station.is_favorite) ||
+                (activeFilter.type === 'genre' && station.genre === activeFilter.value) ||
+                (activeFilter.type === 'country' && station.country === activeFilter.value);
+
+            return matchesSearch && matchesFilter;
+        });
+    }
+
+    function starIcon(isFavorite) {
+        const fill = isFavorite ? 'currentColor' : 'none';
+        return `
+            <svg viewBox="0 0 24 24" role="img" aria-hidden="true">
+                <path fill="${fill}" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="m12 3.6 2.6 5.2 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8L12 3.6Z"></path>
+            </svg>
+        `;
+    }
+
     function renderStations(stations) {
         stationList.innerHTML = '';
+
         if (stations.length === 0) {
-            stationList.innerHTML = `<div class="loader-container"><p>${locales['web_no_results'] || 'No results found.'}</p></div>`;
+            const state = document.createElement('div');
+            state.className = 'state-container';
+            state.innerHTML = `<p>${t('web_no_results', 'No results found.')}</p>`;
+            stationList.appendChild(state);
             return;
         }
 
         stations.forEach(station => {
-            const card = document.createElement('div');
+            const card = document.createElement('article');
             card.className = `station-card ${currentStationId === station.id ? 'active' : ''}`;
-            
-            // Baş harften ikon oluştur
-            const initial = station.name.charAt(0).toUpperCase();
+            card.tabIndex = 0;
+            card.setAttribute('role', 'button');
+            card.setAttribute('aria-label', `${t('web_play', 'Play')} ${station.name}`);
+
+            const initial = (station.name || '?').trim().charAt(0).toUpperCase() || '?';
+            const genre = station.genre || t('web_unknown_genre', 'Unknown genre');
+            const country = station.country || t('web_unknown_country', 'Unknown country');
+            const isActive = currentStationId === station.id;
 
             card.innerHTML = `
-                <div class="icon-wrapper">${initial}</div>
-                <div class="name">${station.name}</div>
-                <div class="genre">${station.genre || '-'}</div>
-                <div class="fav-badge" onclick="toggleFavorite(event, '${station.id}')" style="cursor:pointer;" title="Fav">
-                    ${station.is_favorite ? '⭐' : '☆'}
+                <div class="card-top">
+                    <div class="station-avatar"></div>
+                    <button class="fav-badge ${station.is_favorite ? 'is-favorite' : ''}" type="button" aria-label="${t('web_toggle_favorite', 'Toggle favorite')}">
+                        ${starIcon(station.is_favorite)}
+                    </button>
+                </div>
+                <div class="station-main">
+                    <div class="station-name-card"></div>
+                    <div class="station-meta">
+                        <span class="meta-pill"></span>
+                        <span class="meta-pill"></span>
+                    </div>
+                </div>
+                <div class="card-action">
+                    <span class="play-indicator">${isActive ? t('web_playing_short', 'Playing') : t('web_live', 'Live Broadcast')}</span>
+                    <span class="play-arrow" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" role="img"><path d="M8 5.5v13l10-6.5-10-6.5Z"/></svg>
+                    </span>
                 </div>
             `;
-            card.onclick = () => playStation(station.id);
+
+            card.querySelector('.station-avatar').textContent = initial;
+            card.querySelector('.station-name-card').textContent = station.name;
+            const metaPills = card.querySelectorAll('.meta-pill');
+            metaPills[0].textContent = genre;
+            metaPills[1].textContent = country;
+
+            card.querySelector('.fav-badge').addEventListener('click', event => {
+                event.stopPropagation();
+                toggleFavorite(station.id);
+            });
+
+            card.addEventListener('click', () => playStation(station.id));
+            card.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    playStation(station.id);
+                }
+            });
+
             stationList.appendChild(card);
         });
     }
 
-    // Oynat
+    async function toggleFavorite(id) {
+        try {
+            const response = await fetch(`/api/favorite/${encodeURIComponent(id)}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Favorite API error');
+            const data = await response.json();
+            const station = allStations.find(s => s.id === id);
+            if (station) {
+                station.is_favorite = data.is_favorite;
+                showToast(
+                    data.is_favorite
+                        ? t('web_favorite_added', 'Added to favorites')
+                        : t('web_favorite_removed', 'Removed from favorites')
+                );
+            }
+            buildFilters();
+            renderStations(getVisibleStations());
+        } catch (error) {
+            console.error('Error toggling favorite:', error);
+            showToast(t('msg_error', 'Error'), 'error');
+        }
+    }
+
     async function playStation(id) {
         try {
-            // UI'da hemen aktif yap
             currentStationId = id;
-            renderStations(allStations);
-            stationNameDisplay.textContent = locales['web_connecting'] || 'Connecting...';
+            renderStations(getVisibleStations());
+            stationNameDisplay.textContent = t('web_connecting', 'Connecting...');
             songTitleDisplay.textContent = '';
             nowPlaying.classList.remove('hidden');
 
-            await fetch(`/api/play/${id}`, { method: 'POST' });
-            updateStatus();
+            const response = await fetch(`/api/play/${encodeURIComponent(id)}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Play API error');
+            await updateStatus();
         } catch (error) {
             console.error('Error playing station:', error);
+            showToast(t('msg_error', 'Error'), 'error');
         }
     }
 
-    // Durdur
     async function stopPlayback() {
         try {
-            await fetch('/api/stop', { method: 'POST' });
+            const response = await fetch('/api/stop', { method: 'POST' });
+            if (!response.ok) throw new Error('Stop API error');
             currentStationId = null;
-            updateStatus();
-            renderStations(allStations);
+            await updateStatus();
+            renderStations(getVisibleStations());
+            showToast(t('msg_stop_playing', 'Playback stopped.'));
         } catch (error) {
             console.error('Error stopping playback:', error);
+            showToast(t('msg_error', 'Error'), 'error');
         }
     }
 
-    // Durum güncelleme
+    function updateRecordingUi(recording) {
+        isRecording = recording;
+        recordBtn.classList.toggle('recording', recording);
+        recordingPill.classList.toggle('hidden', !recording);
+    }
+
     async function updateStatus() {
         try {
             const response = await fetch('/api/status');
+            if (!response.ok) throw new Error('Status API error');
             const status = await response.json();
 
             if (status.is_playing) {
                 nowPlaying.classList.remove('hidden');
-                
+
                 if (status.current_station) {
                     stationNameDisplay.textContent = status.current_station.name;
                     if (currentStationId !== status.current_station.id) {
                         currentStationId = status.current_station.id;
-                        renderStations(allStations); // Update active state on cards
+                        renderStations(getVisibleStations());
                     }
                 }
 
-                if (status.current_song && status.current_song !== "-") {
-                    songTitleDisplay.textContent = status.current_song;
-                    equalizer.classList.remove('paused');
-                } else {
-                    songTitleDisplay.textContent = locales['web_live'] || 'Live Broadcast';
-                    equalizer.classList.remove('paused');
-                }
+                songTitleDisplay.textContent =
+                    status.current_song && status.current_song !== '-'
+                        ? status.current_song
+                        : t('web_live', 'Live Broadcast');
 
-                // Sadece kullanıcı kaydırmıyorsa değeri güncelle
+                equalizer.classList.remove('paused');
                 if (document.activeElement !== volumeSlider) {
                     volumeSlider.value = status.volume;
+                    volumeValue.textContent = `${status.volume}%`;
                 }
-
-                // Update Recording UI
-                if (status.is_recording) {
-                    recordBtn.classList.add('recording');
-                    isRecording = true;
-                } else {
-                    recordBtn.classList.remove('recording');
-                    isRecording = false;
-                }
-
+                updateRecordingUi(Boolean(status.is_recording));
             } else {
                 nowPlaying.classList.add('hidden');
                 currentStationId = null;
                 equalizer.classList.add('paused');
-                recordBtn.classList.remove('recording');
-                isRecording = false;
+                updateRecordingUi(false);
             }
         } catch (error) {
             console.error('Error updating status:', error);
         }
     }
 
-    // Arama filtreleme
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = allStations.filter(s => 
-            s.name.toLowerCase().includes(term) || 
-            (s.genre && s.genre.toLowerCase().includes(term))
-        );
-        renderStations(filtered);
-    });
-
-    stopBtn.addEventListener('click', stopPlayback);
-
-    recordBtn.addEventListener('click', async () => {
+    async function toggleRecording() {
         try {
             const endpoint = isRecording ? '/api/record/stop' : '/api/record/start';
             const response = await fetch(endpoint, { method: 'POST' });
+            if (!response.ok) throw new Error('Recording API error');
             const result = await response.json();
-            alert(result.message);
-            updateStatus();
+            showToast(result.message || t('web_recording_updated', 'Recording updated.'));
+            await updateStatus();
         } catch (error) {
             console.error('Recording error:', error);
+            showToast(t('msg_error', 'Error'), 'error');
         }
-    });
+    }
 
-    // change eventi: slider bırakıldığında tetiklenir
-    volumeSlider.addEventListener('change', async (e) => {
-        const vol = e.target.value;
+    async function setVolume(level) {
         try {
-            await fetch(`/api/volume/${vol}`, { method: 'POST' });
+            const response = await fetch(`/api/volume/${level}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Volume API error');
         } catch (error) {
             console.error('Error setting volume:', error);
+            showToast(t('msg_error', 'Error'), 'error');
         }
-    });
+    }
 
-    // System Modal Logic
-    systemBtn.addEventListener('click', async () => {
+    async function showSystemModal() {
         try {
             systemStats.innerHTML = '<div class="spinner" style="margin: 0 auto;"></div>';
             systemModal.classList.remove('hidden');
             const response = await fetch('/api/system');
+            if (!response.ok) throw new Error('System API error');
             const data = await response.json();
             systemStats.innerHTML = `
-                <p><strong>OS:</strong> ${data.os}</p>
-                <p><strong>Python:</strong> ${data.python_version}</p>
-                <p><strong>RAM:</strong> ${data.memory_usage_mb} MB</p>
-                <p><strong>CPU:</strong> ${data.cpu_percent}%</p>
+                <div class="system-stat"><span>OS</span><strong>${data.os}</strong></div>
+                <div class="system-stat"><span>Python</span><strong>${data.python_version}</strong></div>
+                <div class="system-stat"><span>RAM</span><strong>${data.memory_usage_mb} MB</strong></div>
+                <div class="system-stat"><span>CPU</span><strong>${data.cpu_percent}%</strong></div>
             `;
         } catch (error) {
-            systemStats.innerHTML = `<p style="color:var(--stop-color);">${locales['msg_error'] || 'Error'}</p>`;
+            console.error('System modal error:', error);
+            systemStats.innerHTML = `<p style="color:var(--danger);">${t('msg_error', 'Error')}</p>`;
+        }
+    }
+
+    initTheme();
+
+    themeSelect.addEventListener('change', event => setTheme(event.target.value));
+
+    langSelect.addEventListener('change', async event => {
+        try {
+            const response = await fetch(`/api/language/${event.target.value}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Language API error');
+            await fetchLocalization();
+        } catch (error) {
+            console.error('Error changing language:', error);
+            showToast(t('msg_error', 'Error'), 'error');
         }
     });
 
-    closeModal.addEventListener('click', () => {
-        systemModal.classList.add('hidden');
+    searchInput.addEventListener('input', () => renderStations(getVisibleStations()));
+    stopBtn.addEventListener('click', stopPlayback);
+    recordBtn.addEventListener('click', toggleRecording);
+    volumeSlider.addEventListener('input', event => {
+        volumeValue.textContent = `${event.target.value}%`;
+    });
+    volumeSlider.addEventListener('change', event => setVolume(event.target.value));
+    systemBtn.addEventListener('click', showSystemModal);
+    closeModal.addEventListener('click', () => systemModal.classList.add('hidden'));
+    systemModal.addEventListener('click', event => {
+        if (event.target === systemModal) systemModal.classList.add('hidden');
+    });
+    document.addEventListener('keydown', event => {
+        if (event.key === 'Escape') systemModal.classList.add('hidden');
     });
 
-    // İlk yükleme
     fetchLocalization();
     fetchStations();
-    
-    // Her 2 saniyede bir durumu kontrol et
-    setInterval(updateStatus, 2000);
+    updateStatus();
+    window.setInterval(updateStatus, 2000);
 });
