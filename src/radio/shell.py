@@ -194,6 +194,7 @@ class InteractiveShell:
             if total_seconds >= 15:
                 show_waiting_msg = False
 
+        song_title = None
         if p.current_song:
             song_title = (p.current_song[:45] + '…') if len(p.current_song) > 45 else p.current_song
             song_part = f'{SEP}<ansiyellow>🎵  {song_title}</ansiyellow>'
@@ -206,7 +207,8 @@ class InteractiveShell:
         rec_part = f'  <ansired>🔴  {L.get("recording")}</ansired>' if p.is_recording() else ''
 
         if ui.is_current_theme("winamp-classic"):
-            title = song_title if p.current_song else L.get("waiting_song")
+            title = song_title or (L.get("waiting_song") if show_waiting_msg else "—")
+            winamp_rec = '  <ansired>[REC]</ansired>' if p.is_recording() else ''
             return HTML(
                 f'  <ansibrightgreen><b>▌▌  {station_name}</b></ansibrightgreen>'
                 f'  <ansiyellow>▶  {title}</ansiyellow>'
@@ -214,7 +216,7 @@ class InteractiveShell:
                 f'  <ansibrightblack>│</ansibrightblack>  <ansibrightblue>{codec_str}</ansibrightblue>'
                 f'  <ansibrightblack>│</ansibrightblack>  <ansiyellow>VOL {p.volume}%</ansiyellow>'
                 f'  <ansibrightblack>│</ansibrightblack>  {elapsed_str}'
-                f'{rec_part}  '
+                f'{winamp_rec}  '
             )
 
         return HTML(

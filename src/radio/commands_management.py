@@ -40,10 +40,15 @@ class ManagementCommands:
 
     def cmd_favori(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="favori")
-        parser.add_argument("-i", "--id", required=True)
+        parser.add_argument("id", nargs="?")
+        parser.add_argument("-i", dest="id_flag", metavar="ID")
         try:
-            parsed = parser.parse_args(args)
-            station = self.station_service.get_station(parsed.id)
+            parsed, _ = parser.parse_known_args(args)
+            station_id = parsed.id_flag or parsed.id
+            if not station_id:
+                ui.print_error("Usage: favori <id>")
+                return
+            station = self.station_service.get_station(station_id)
             if not station:
                 ui.print_error(L.get("msg_station_not_found"))
                 return
@@ -53,7 +58,7 @@ class ManagementCommands:
             else:
                 ui.print_info(L.get("msg_fav_removed", name=station.name))
         except SystemExit:
-            ui.print_error("Usage: favori -i <id>")
+            ui.print_error("Usage: favori <id>")
 
     def cmd_favoriler(self, args: List[str]):
         favs = self.station_service.get_favorites()
@@ -72,12 +77,14 @@ class ManagementCommands:
 
     def cmd_tema(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="tema")
-        parser.add_argument("-i", "--isim")
+        parser.add_argument("isim", nargs="?")
+        parser.add_argument("-i", dest="isim_flag", metavar="ISIM")
         try:
             parsed, _ = parser.parse_known_args(args)
-            if parsed.isim:
-                if ui.set_theme(parsed.isim):
-                    ui.print_success(f"Tema '{parsed.isim}' olarak ayarlandı.")
+            theme_name = parsed.isim_flag or parsed.isim
+            if theme_name:
+                if ui.set_theme(theme_name):
+                    ui.print_success(f"Tema '{theme_name}' olarak ayarlandı.")
                 else:
                     ui.print_error(f"Geçersiz tema. Mevcut: {', '.join(ui.get_themes())}")
             else:
@@ -87,11 +94,13 @@ class ManagementCommands:
 
     def cmd_kontrol(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="kontrol")
-        parser.add_argument("-i", "--id")
+        parser.add_argument("id", nargs="?")
+        parser.add_argument("-i", dest="id_flag", metavar="ID")
         try:
             parsed, _ = parser.parse_known_args(args)
+            station_id = parsed.id_flag or parsed.id
             stations = [self.station_service.get_station(
-                parsed.id)] if parsed.id else self.station_service.get_all_stations()
+                station_id)] if station_id else self.station_service.get_all_stations()
             stations = [s for s in stations if s]
 
             if not stations:
@@ -103,21 +112,20 @@ class ManagementCommands:
             success = 0
             for s in stations:
                 try:
-                    # Using curl like the java app suggests in its tests/logic often
                     cmd = ["curl", "-s", "-I", "-m", "5", "-A", "VLC/3.0.16 LibVLC/3.0.16", s.url]
                     res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, text=True)
                     if "HTTP/" in res.stdout and ("200" in res.stdout or "302" in res.stdout):
                         success += 1
-                        if parsed.id:
+                        if station_id:
                             ui.print_success(f"{s.name}: AKTİF")
                     else:
-                        if parsed.id:
+                        if station_id:
                             ui.print_error(f"{s.name}: BAŞARISIZ")
                 except Exception:
-                    if parsed.id:
+                    if station_id:
                         ui.print_error(f"{s.name}: HATA")
 
-            if not parsed.id:
+            if not station_id:
                 ui.print_info(f"Kontrol tamamlandı: {success}/{len(stations)} aktif.")
         except SystemExit:
             pass

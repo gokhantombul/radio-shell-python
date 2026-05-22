@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const stopBtn = document.getElementById('stop-btn');
     const recordBtn = document.getElementById('record-btn');
     const recordingPill = document.getElementById('recording-pill');
+    const elapsedPill = document.getElementById('elapsed-time');
     const volumeSlider = document.getElementById('volume-slider');
     const volumeValue = document.getElementById('volume-value');
     const equalizer = document.getElementById('equalizer');
@@ -28,6 +29,28 @@ document.addEventListener('DOMContentLoaded', () => {
     let stationsLoaded = false;
     let locales = {};
     let activeFilter = { type: 'all', value: '' };
+
+    let elapsedBase = null;
+    let elapsedBaseAt = null;
+    let elapsedTickId = null;
+
+    function startElapsedTick(serverSeconds) {
+        elapsedBase = serverSeconds;
+        elapsedBaseAt = Date.now();
+        if (elapsedTickId) clearInterval(elapsedTickId);
+        elapsedTickId = setInterval(() => {
+            const secs = elapsedBase + Math.floor((Date.now() - elapsedBaseAt) / 1000);
+            const m = Math.floor(secs / 60);
+            const s = secs % 60;
+            elapsedPill.textContent = `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+        }, 1000);
+    }
+
+    function stopElapsedTick() {
+        if (elapsedTickId) { clearInterval(elapsedTickId); elapsedTickId = null; }
+        elapsedBase = null;
+        elapsedBaseAt = null;
+    }
 
     function t(key, fallback) {
         return locales[key] || fallback;
@@ -360,11 +383,26 @@ document.addEventListener('DOMContentLoaded', () => {
                     volumeValue.textContent = `${status.volume}%`;
                 }
                 updateRecordingUi(Boolean(status.is_recording));
+
+                if (status.elapsed_seconds != null) {
+                    elapsedPill.classList.remove('hidden');
+                    if (elapsedBase === null) {
+                        startElapsedTick(status.elapsed_seconds);
+                    } else {
+                        elapsedBase = status.elapsed_seconds;
+                        elapsedBaseAt = Date.now();
+                    }
+                } else {
+                    stopElapsedTick();
+                    elapsedPill.classList.add('hidden');
+                }
             } else {
                 nowPlaying.classList.add('hidden');
                 currentStationId = null;
                 equalizer.classList.add('paused');
                 updateRecordingUi(false);
+                stopElapsedTick();
+                elapsedPill.classList.add('hidden');
             }
         } catch (error) {
             console.error('Error updating status:', error);

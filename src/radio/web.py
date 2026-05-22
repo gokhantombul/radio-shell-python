@@ -1,4 +1,5 @@
 import os
+from datetime import datetime
 from fastapi import FastAPI, HTTPException
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
@@ -22,6 +23,7 @@ class PlayerStatus(BaseModel):
     current_song: Optional[str]
     volume: int
     is_recording: bool
+    elapsed_seconds: Optional[int] = None
 
 def create_app(player: AudioPlayer, station_service: StationService, settings_service: SettingsService):
     from src.radio.services.localization_service import L
@@ -55,12 +57,17 @@ def create_app(player: AudioPlayer, station_service: StationService, settings_se
                 is_favorite=s.id in station_service.favorites
             )
         
+        elapsed_seconds = None
+        if player.playback_start_time:
+            elapsed_seconds = max(0, int((datetime.now() - player.playback_start_time).total_seconds()))
+
         return PlayerStatus(
             is_playing=player.is_playing(),
             current_station=current_station_info,
             current_song=player.current_song,
             volume=player.volume,
-            is_recording=player.is_recording() if hasattr(player, 'is_recording') else False
+            is_recording=player.is_recording() if hasattr(player, 'is_recording') else False,
+            elapsed_seconds=elapsed_seconds
         )
 
     @app.post("/api/play/{station_id}")

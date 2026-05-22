@@ -109,7 +109,7 @@ def _print_winamp_banner():
     append_row([
         ("00:00", f"bold {current_theme.primary}"),
         ("  ", ""),
-        ("||||||||||||||||", current_theme.primary),
+        ("▁▂▄▇▆▄▂▁▃▅▇▅▃▂▁▃", current_theme.primary),
         ("  ", ""),
         ("STEREO", f"bold {current_theme.highlight}"),
         ("  128 KBPS  44 KHZ", "dim"),
@@ -254,7 +254,7 @@ def print_station_table(title: str, stations: List[RadioStation], subtitle: Opti
 
 def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_recording: bool):
     if is_current_theme("winamp-classic"):
-        content = f"[{current_theme.highlight}]STATION[/] [{current_theme.primary}]{station.name}[/]\n"
+        content = f"[{current_theme.highlight}]STATION[/]  [{current_theme.primary}]{station.name}[/]\n"
         content += f"[{current_theme.highlight}]COUNTRY[/]  [{current_theme.primary}]{station.country or '-'}[/]\n"
         content += f"[{current_theme.highlight}]GENRE[/]    [{current_theme.primary}]{station.genre or '-'}[/]\n"
 

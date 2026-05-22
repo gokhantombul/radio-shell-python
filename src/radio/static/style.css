@@ -320,9 +320,9 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    gap: 28px;
-    min-height: 170px;
-    padding: 24px;
+    gap: 32px;
+    min-height: 210px;
+    padding: 28px 32px;
     border-radius: var(--tool-radius);
     border-left: 4px solid var(--accent);
     transition: opacity 0.25s ease, transform 0.25s ease, min-height 0.25s ease, padding 0.25s ease, margin 0.25s ease;
@@ -350,8 +350,8 @@ h1 {
 
 .signal-dial {
     display: grid;
-    width: 94px;
-    height: 94px;
+    width: 116px;
+    height: 116px;
     place-items: center;
     flex: 0 0 auto;
     border: 1px solid var(--border-strong);
@@ -359,14 +359,14 @@ h1 {
     background:
         linear-gradient(145deg, color-mix(in srgb, var(--accent) 18%, transparent), transparent),
         var(--bg-muted);
-    box-shadow: inset 0 0 28px color-mix(in srgb, var(--accent) 17%, transparent);
+    box-shadow: inset 0 0 36px color-mix(in srgb, var(--accent) 17%, transparent);
 }
 
 .equalizer {
     display: flex;
     align-items: flex-end;
     gap: 4px;
-    height: 36px;
+    height: 46px;
 }
 
 .equalizer .bar {
@@ -382,15 +382,15 @@ h1 {
     animation: none;
 }
 
-.bar-1 { height: 18px; animation-delay: -0.4s; }
-.bar-2 { height: 34px; animation-delay: -0.18s; }
-.bar-3 { height: 24px; animation-delay: -0.62s; }
-.bar-4 { height: 31px; animation-delay: -0.08s; }
-.bar-5 { height: 20px; animation-delay: -0.5s; }
+.bar-1 { height: 22px; animation-delay: -0.4s; }
+.bar-2 { height: 42px; animation-delay: -0.18s; }
+.bar-3 { height: 30px; animation-delay: -0.62s; }
+.bar-4 { height: 38px; animation-delay: -0.08s; }
+.bar-5 { height: 24px; animation-delay: -0.5s; }
 
 @keyframes equalize {
     from { height: 7px; }
-    to { height: 36px; }
+    to { height: 46px; }
 }
 
 .info-content {
@@ -408,20 +408,20 @@ h1 {
 
 .station-name {
     display: block;
-    max-width: 520px;
-    margin-top: 8px;
+    max-width: 580px;
+    margin-top: 10px;
     color: var(--text-primary);
-    font-size: 1.9rem;
+    font-size: 2.2rem;
     font-weight: 800;
-    line-height: 1.12;
+    line-height: 1.1;
     overflow-wrap: anywhere;
 }
 
 .song-title {
     min-height: 1.4em;
-    margin-top: 7px;
+    margin-top: 9px;
     color: var(--text-secondary);
-    font-size: 1rem;
+    font-size: 1.08rem;
     overflow-wrap: anywhere;
 }
 
@@ -439,6 +439,7 @@ h1 {
 }
 
 .live-pill,
+.elapsed-pill,
 .recording-pill,
 .filter-chip,
 .meta-pill {
@@ -463,6 +464,17 @@ h1 {
     border-radius: 50%;
     background: var(--accent);
     box-shadow: 0 0 0 5px color-mix(in srgb, var(--accent) 17%, transparent);
+}
+
+.elapsed-pill {
+    color: var(--text-muted);
+    border-color: var(--border);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+}
+
+.elapsed-pill.hidden {
+    display: none;
 }
 
 .recording-pill {
@@ -969,8 +981,8 @@ h1 {
 }
 
 body[data-theme="premium-radio"] .now-playing {
-    min-height: 210px;
-    padding: 30px;
+    min-height: 250px;
+    padding: 36px;
 }
 
 body[data-theme="premium-radio"] .now-playing.hidden {
@@ -980,12 +992,12 @@ body[data-theme="premium-radio"] .now-playing.hidden {
 }
 
 body[data-theme="premium-radio"] .signal-dial {
-    width: 118px;
-    height: 118px;
+    width: 140px;
+    height: 140px;
 }
 
 body[data-theme="premium-radio"] .station-name {
-    font-size: 2.2rem;
+    font-size: 2.5rem;
 }
 
 body[data-theme="premium-radio"] .now-playing,
@@ -1029,17 +1041,17 @@ body[data-theme="compact-dashboard"] h1 {
 }
 
 body[data-theme="compact-dashboard"] .now-playing {
-    min-height: 126px;
-    padding: 16px;
+    min-height: 146px;
+    padding: 18px 22px;
 }
 
 body[data-theme="compact-dashboard"] .signal-dial {
-    width: 64px;
-    height: 64px;
+    width: 74px;
+    height: 74px;
 }
 
 body[data-theme="compact-dashboard"] .station-name {
-    font-size: 1.35rem;
+    font-size: 1.5rem;
 }
 
 body[data-theme="compact-dashboard"] .station-grid {
@@ -1821,12 +1833,12 @@ body[data-theme="brutalist"] .state-container {
     }
 
     .signal-dial {
-        width: 66px;
-        height: 66px;
+        width: 80px;
+        height: 80px;
     }
 
     .equalizer {
-        height: 28px;
+        height: 34px;
     }
 
     .equalizer .bar {
@@ -1834,7 +1846,7 @@ body[data-theme="brutalist"] .state-container {
     }
 
     .station-name {
-        font-size: 1.45rem;
+        font-size: 1.65rem;
     }
 
     .controls {
@@ -2385,7 +2397,7 @@ body[data-theme="winamp-classic"] .ambient-bg {
 body[data-theme="winamp-classic"] .container {
     display: grid;
     width: min(980px, 100%);
-    grid-template-columns: minmax(292px, 365px) minmax(0, 1fr);
+    grid-template-columns: minmax(340px, 420px) minmax(0, 1fr);
     gap: 8px;
     align-items: start;
 }
@@ -2504,11 +2516,11 @@ body[data-theme="winamp-classic"] .subtitle {
 
 body[data-theme="winamp-classic"] .now-playing {
     display: grid;
-    min-height: 190px;
+    min-height: 250px;
     grid-template-columns: 1fr;
     align-items: stretch;
-    gap: 7px;
-    padding: 7px;
+    gap: 9px;
+    padding: 9px;
     border: 1px solid #05070c;
     border-left: 1px solid #05070c;
     border-radius: 0;
@@ -2524,33 +2536,71 @@ body[data-theme="winamp-classic"] .now-playing.hidden {
 body[data-theme="winamp-classic"] .playing-info {
     display: grid;
     min-width: 0;
-    grid-template-columns: 76px minmax(0, 1fr);
-    gap: 7px;
-    padding: 6px;
+    grid-template-columns: 94px minmax(0, 1fr);
+    gap: 9px;
+    padding: 8px;
     border: 1px solid #05070c;
     background: linear-gradient(180deg, #151927, #080a10);
 }
 
 body[data-theme="winamp-classic"] .signal-dial {
-    width: 76px;
-    height: 64px;
+    position: relative;
+    overflow: hidden;
+    width: 94px;
+    height: 82px;
     border: 1px solid #030503;
     border-radius: 0;
-    background: #050806;
+    background: #020503;
     box-shadow:
-        inset 0 0 16px rgba(0, 255, 102, 0.10),
-        inset 1px 1px 0 rgba(255, 255, 255, 0.08);
+        inset 0 0 24px rgba(0, 255, 102, 0.14),
+        inset 1px 1px 0 rgba(255, 255, 255, 0.06);
+    align-items: flex-end;
+    padding-bottom: 4px;
+}
+
+/* CRT scanline overlay */
+body[data-theme="winamp-classic"] .signal-dial::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: repeating-linear-gradient(
+        0deg,
+        rgba(0, 0, 0, 0.22) 0px,
+        rgba(0, 0, 0, 0.22) 1px,
+        transparent 1px,
+        transparent 3px
+    );
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Winamp VIS header label */
+body[data-theme="winamp-classic"] .signal-dial::before {
+    content: "VIS";
+    position: absolute;
+    top: 4px;
+    left: 6px;
+    font-family: "Courier New", monospace;
+    font-size: 0.52rem;
+    font-weight: 700;
+    color: #2a6640;
+    letter-spacing: 0.08em;
+    z-index: 3;
 }
 
 body[data-theme="winamp-classic"] .equalizer {
-    height: 42px;
+    width: calc(100% - 12px);
+    height: 52px;
     gap: 3px;
+    justify-content: space-between;
+    z-index: 1;
 }
 
 body[data-theme="winamp-classic"] .equalizer .bar {
-    width: 8px;
+    flex: 1;
+    max-width: 14px;
     border-radius: 0;
-    background: linear-gradient(to top, #00ff66 0 58%, #ffd24d 58% 78%, #ff4048 78% 100%);
+    background: linear-gradient(to top, #00ff66 0 55%, #ffd24d 55% 78%, #ff4048 78% 100%);
     box-shadow: 0 0 6px rgba(0, 255, 102, 0.55);
 }
 
@@ -2576,17 +2626,17 @@ body[data-theme="winamp-classic"] .eyebrow {
 
 body[data-theme="winamp-classic"] .station-name {
     max-width: 100%;
-    margin-top: 5px;
+    margin-top: 6px;
     color: var(--accent);
-    font-size: 1.18rem;
-    line-height: 1.12;
-    text-shadow: 0 0 7px rgba(0, 255, 102, 0.72);
+    font-size: 1.42rem;
+    line-height: 1.1;
+    text-shadow: 0 0 9px rgba(0, 255, 102, 0.80);
 }
 
 body[data-theme="winamp-classic"] .song-title {
     min-height: 1.3em;
     color: var(--accent-strong);
-    font-size: 0.78rem;
+    font-size: 0.9rem;
 }
 
 body[data-theme="winamp-classic"] .status-row {
@@ -2594,6 +2644,7 @@ body[data-theme="winamp-classic"] .status-row {
 }
 
 body[data-theme="winamp-classic"] .live-pill,
+body[data-theme="winamp-classic"] .elapsed-pill,
 body[data-theme="winamp-classic"] .recording-pill,
 body[data-theme="winamp-classic"] .filter-chip,
 body[data-theme="winamp-classic"] .meta-pill {
@@ -2609,10 +2660,24 @@ body[data-theme="winamp-classic"] .live-pill {
     color: var(--accent);
 }
 
+body[data-theme="winamp-classic"] .elapsed-pill {
+    color: var(--accent-strong);
+    font-family: "Courier New", monospace;
+    letter-spacing: 0.08em;
+}
+
 body[data-theme="winamp-classic"] .controls {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: 1fr 1fr;
     gap: 5px;
+}
+
+body[data-theme="winamp-classic"] #record-btn {
+    order: 1;
+}
+
+body[data-theme="winamp-classic"] #stop-btn {
+    order: 2;
 }
 
 body[data-theme="winamp-classic"] .btn,
@@ -2676,6 +2741,7 @@ body[data-theme="winamp-classic"] .btn-stop:focus-visible {
 }
 
 body[data-theme="winamp-classic"] .volume-wrapper {
+    order: 3;
     grid-column: 1 / -1;
     justify-content: stretch;
     padding: 0 8px;
@@ -2731,15 +2797,16 @@ body[data-theme="winamp-classic"] main {
 body[data-theme="winamp-classic"] main::before {
     content: "PLAYLIST EDITOR";
     display: block;
+    width: 100%;
     height: 23px;
     margin-bottom: 4px;
-    padding: 4px 7px 0;
+    padding: 0 7px;
     border: 1px solid #394d99;
     background: linear-gradient(90deg, #0b1351, #2544bb 45%, #5f7cff 62%, #101646);
     color: #ffffff;
     font-size: 0.72rem;
     font-weight: 800;
-    line-height: 1;
+    line-height: 21px;
 }
 
 body[data-theme="winamp-classic"] .discovery {
@@ -2981,12 +3048,12 @@ body[data-theme="winamp-classic"] .system-stat {
     }
 
     body[data-theme="winamp-classic"] .playing-info {
-        grid-template-columns: 64px minmax(0, 1fr);
+        grid-template-columns: 76px minmax(0, 1fr);
     }
 
     body[data-theme="winamp-classic"] .signal-dial {
-        width: 64px;
-        height: 58px;
+        width: 76px;
+        height: 68px;
     }
 }
 

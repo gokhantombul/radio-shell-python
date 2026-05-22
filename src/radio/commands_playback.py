@@ -59,16 +59,21 @@ class PlaybackCommands:
 
     def cmd_cal(self, args: List[str]):
         parser = argparse.ArgumentParser(prog="cal")
-        parser.add_argument("-i", "--id", required=True)
+        parser.add_argument("id", nargs="?")
+        parser.add_argument("-i", dest="id_flag", metavar="ID")
         try:
-            parsed = parser.parse_args(args)
-            station = self.station_service.get_station(parsed.id)
+            parsed, _ = parser.parse_known_args(args)
+            station_id = parsed.id_flag or parsed.id
+            if not station_id:
+                ui.print_error("Usage: cal <id>")
+                return
+            station = self.station_service.get_station(station_id)
             if not station:
-                ui.print_error(L.get("msg_station_not_found") + f": {parsed.id}")
+                ui.print_error(L.get("msg_station_not_found") + f": {station_id}")
                 return
             self.play_station(station)
         except SystemExit:
-            ui.print_error("Usage: cal -i <id>")
+            ui.print_error("Usage: cal <id>")
 
     def cmd_son(self, args: List[str]):
         last_id = self.settings_service.get_last_station_id()
