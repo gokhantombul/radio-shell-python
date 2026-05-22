@@ -39,7 +39,7 @@ if not exist "venv\" (
 )
 
 set "PYTHONPATH=%SCRIPT_DIR%"
-venv\Scripts\python -m src.radio.main
+venv\Scripts\python -m src.radio.main %*
 goto :eof
 
 :: ── Install ──────────────────────────────────────────────────────────────────

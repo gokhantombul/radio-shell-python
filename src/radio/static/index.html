@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Radio Shell Web</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/1000/1000858.png">
+</head>
+<body>
+    <!-- Top Action Buttons -->
+    <div class="top-actions">
+        <select id="language-select" class="lang-selector glass">
+            <option value="">Dil / Lang</option>
+        </select>
+        <button id="system-btn" class="action-btn glass" aria-label="Sistem Bilgisi" title="Sistem Bilgisi">⚙️</button>
+        <button id="theme-toggle" class="action-btn glass" aria-label="Temayı Değiştir" title="Temayı Değiştir">
+            <span id="theme-icon">☀️</span>
+        </button>
+    </div>
+
+    <!-- Background animations -->
+    <div class="bg-shape shape1"></div>
+    <div class="bg-shape shape2"></div>
+
+    <div class="container">
+        <header>
+            <h1 class="glow-text">📻 Radio Shell</h1>
+            <p class="subtitle" data-i18n="web_subtitle">Terminal FM Radio Player - Web Edition</p>
+            
+            <div id="now-playing" class="now-playing hidden glass">
+                <div class="playing-info">
+                    <div class="equalizer" id="equalizer">
+                        <span class="bar bar-1"></span>
+                        <span class="bar bar-2"></span>
+                        <span class="bar bar-3"></span>
+                        <span class="bar bar-4"></span>
+                        <span class="bar bar-5"></span>
+                    </div>
+                    <div class="info-content">
+                        <span class="label" data-i18n="web_now_playing">ŞU AN ÇALIYOR</span>
+                        <span id="current-station-name" class="station-name">-</span>
+                        <div id="current-song-title" class="song-title"></div>
+                    </div>
+                </div>
+                <div class="controls">
+                    <button id="record-btn" class="btn btn-record" title="Kaydı Başlat/Durdur">
+                        <span class="record-icon">⏺</span>
+                    </button>
+                    <div class="volume-wrapper">
+                        <span class="vol-icon">🔉</span>
+                        <input type="range" id="volume-slider" min="0" max="100" value="100" class="styled-slider">
+                        <span class="vol-icon">🔊</span>
+                    </div>
+                    <button id="stop-btn" class="btn btn-stop">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect x="6" y="6" width="12" height="12" rx="2" fill="currentColor"/>
+                        </svg>
+                        <span data-i18n="web_stop">Durdur</span>
+                    </button>
+                </div>
+            </div>
+        </header>
+
+        <main>
+            <div class="search-bar glass">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                <input type="text" id="search-input" data-i18n-placeholder="web_search_placeholder" placeholder="Bir radyo istasyonu veya tür ara...">
+            </div>
+            
+            <div id="station-list" class="station-grid">
+                <div class="loader-container">
+                    <div class="spinner"></div>
+                    <p data-i18n="web_stations_loading">İstasyonlar yükleniyor...</p>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- System Modal -->
+    <div id="system-modal" class="modal hidden">
+        <div class="modal-content glass">
+            <h2 data-i18n="web_system_status">Sistem Durumu</h2>
+            <div id="system-stats"><span data-i18n="web_loading">Yükleniyor...</span></div>
+            <button id="close-modal" class="btn" style="margin-top: 20px;" data-i18n="web_close">Kapat</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

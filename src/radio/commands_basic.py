@@ -32,9 +32,47 @@ class BasicCommands:
         shell.register("sistem", self.cmd_sistem, "cmd_sistem_desc", "cat_management")
         shell.register("clear", self.cmd_temizle, "cmd_temizle_desc", "cat_management")
         shell.register("temizle", self.cmd_temizle, "cmd_temizle_desc", "cat_management")
+        shell.register("web", self.cmd_web, "cmd_web_desc", "cat_management")
 
     def _update_last(self, stations: list):
         self.last_list = stations
+
+    def cmd_web(self, args: List[str]):
+        import threading
+        import webbrowser
+        import time
+        try:
+            import uvicorn
+            from src.radio.web import create_app
+            from src.radio.services.settings_service import SettingsService
+            
+            # Since BasicCommands doesn't have settings_service directly, we get it from config if needed
+            # Wait, settings_service is needed by create_app. We need to pass it or create a new one.
+            # Let's import the one from main if possible, or just create it since we have the player's config.
+            settings = SettingsService(self.player.config)
+            app = create_app(self.player, self.station_service, settings)
+            
+            ui.console.print("[bold green]Web sunucusu arka planda başlatılıyor...[/]")
+            
+            def run_server():
+                try:
+                    uvicorn.run(app, host="127.0.0.1", port=8765, log_level="error")
+                except Exception as e:
+                    print(f"Web server error: {e}")
+
+            def open_browser():
+                time.sleep(1.5)
+                ui.console.print("[bold cyan]Tarayıcı açılıyor: http://127.0.0.1:8765[/]")
+                webbrowser.open("http://127.0.0.1:8765")
+                
+            server_thread = threading.Thread(target=run_server, daemon=True)
+            server_thread.start()
+            
+            threading.Thread(target=open_browser, daemon=True).start()
+            
+        except ImportError:
+            ui.console.print("[bold red]Hata:[/] Web modu için 'fastapi' ve 'uvicorn' paketleri gerekli.")
+            ui.console.print("Yüklemek için: [bold cyan]pip install fastapi uvicorn[/]")
 
     def cmd_listele(self, args: List[str]):
         parser = argparse.ArgumentParser(prog='listele', add_help=False)

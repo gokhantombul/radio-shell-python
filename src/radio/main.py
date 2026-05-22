@@ -1,3 +1,10 @@
+import argparse
+import os
+import sys
+import subprocess
+import webbrowser
+import threading
+import time
 from pathlib import Path
 from rich.prompt import Prompt
 from src.radio.config import RadioConfig
@@ -43,6 +50,11 @@ def ensure_language(config: RadioConfig) -> Optional[str]:
 
 
 def main():
+    parser = argparse.ArgumentParser(description="Radio Shell")
+    parser.add_argument("--web", action="store_true", help="Start the web interface")
+    parser.add_argument("--foreground", action="store_true", help="Run web server in foreground")
+    args = parser.parse_args()
+
     # 1. Initialize Configuration
     config = RadioConfig()
     config.ensure_dirs()
@@ -70,23 +82,82 @@ def main():
     # 3. Initialize Player
     player = AudioPlayer(config, notification_service)
 
-    # System Service
-    system_service = SystemService(player)
+    if args.web:
+        # WEB MODE
+        try:
+            import uvicorn
+            from src.radio.web import create_app
+        except ImportError:
+            ui.console.print("[bold red]Hata:[/] Web modu için 'fastapi' ve 'uvicorn' paketleri gerekli.")
+            ui.console.print("Yüklemek için: [bold cyan]pip install fastapi uvicorn[/]")
+            return
 
-    # 4. Initialize Interactive Shell
-    shell = InteractiveShell(station_service)
+        if not args.foreground:
+            # Background mode: Start the same command with --foreground in a new process
+            ui.console.print("[bold green]Web sunucusu arka planda başlatılıyor...[/]")
+            
+            env = os.environ.copy()
+            env["RADIO_WEB_NO_BROWSER"] = "1"
+            
+            # Use sys.executable to run the same python interpreter
+            # Use -m src.radio.main to run it as a module
+            p = subprocess.Popen(
+                [sys.executable, "-m", "src.radio.main", "--web", "--foreground"],
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                stdin=subprocess.DEVNULL,
+                start_new_session=True if os.name != 'nt' else False,
+                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if os.name == 'nt' else 0,
+                env=env
+            )
+            
+            ui.console.print(f"[bold green]✔ Web sunucusu arka planda çalışıyor (PID: {p.pid})[/]")
+            ui.console.print("[bold cyan]Tarayıcı açılıyor: http://127.0.0.1:8765[/]")
+            
+            # Wait a moment for uvicorn to start before opening browser
+            time.sleep(1.5)
+            webbrowser.open("http://127.0.0.1:8765")
+            return
 
-    # 5. Register Commands
-    basic_cmds = BasicCommands(shell, station_service, stats_service, system_service, player)
-    PlaybackCommands(shell, station_service, settings_service, stats_service, player, basic_cmds)
-    ManagementCommands(shell, station_service, radio_browser, notification_service, player, settings_service)
+        # Foreground mode (either explicitly requested or the background child process)
+        app = create_app(player, station_service, settings_service)
+        
+        # Only print if we are not the backgrounded child (stdout is DEVNULL anyway, but let's be clean)
+        # However, we don't strictly need to check since stdout is redirected.
+        ui.console.print("[bold green]Web sunucusu başlatılıyor...[/]")
+        
+        # Only open browser if not suppressed (parent process already did it)
+        if os.environ.get("RADIO_WEB_NO_BROWSER") != "1":
+            def open_browser():
+                time.sleep(1.5)
+                ui.console.print("[bold cyan]Tarayıcı açılıyor: http://127.0.0.1:8765[/]")
+                webbrowser.open("http://127.0.0.1:8765")
+                
+            threading.Thread(target=open_browser, daemon=True).start()
+        
+        try:
+            uvicorn.run(app, host="127.0.0.1", port=8765, log_level="error")
+        finally:
+            player.stop()
+    else:
+        # CLI MODE
+        # System Service
+        system_service = SystemService(player)
 
-    # 6. Run the Shell Loop
-    try:
-        shell.run(player)
-    finally:
-        # 7. Cleanup
-        player.stop()
+        # 4. Initialize Interactive Shell
+        shell = InteractiveShell(station_service)
+
+        # 5. Register Commands
+        basic_cmds = BasicCommands(shell, station_service, stats_service, system_service, player)
+        PlaybackCommands(shell, station_service, settings_service, stats_service, player, basic_cmds)
+        ManagementCommands(shell, station_service, radio_browser, notification_service, player, settings_service)
+
+        # 6. Run the Shell Loop
+        try:
+            shell.run(player)
+        finally:
+            # 7. Cleanup
+            player.stop()
 
 
 if __name__ == "__main__":

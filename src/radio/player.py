@@ -132,6 +132,16 @@ class AudioPlayer:
 
     def set_volume(self, volume: int):
         self.volume = max(0, min(100, volume))
+        if self.is_playing():
+            # Restart the process so the new volume takes effect
+            if self.process:
+                try:
+                    self.process.terminate()
+                    self.process.wait(timeout=1)
+                except Exception:
+                    self.process.kill()
+                self.process = None
+            self._start_ffplay()
 
     def is_playing(self) -> bool:
         return self.process is not None and self.process.poll() is None

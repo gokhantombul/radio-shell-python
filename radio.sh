@@ -77,4 +77,4 @@ if [ ! -d "venv" ]; then
 fi
 
 export PYTHONPATH="$SCRIPT_DIR"
-exec ./venv/bin/python3 -m src.radio.main
+exec ./venv/bin/python3 -m src.radio.main "$@"
