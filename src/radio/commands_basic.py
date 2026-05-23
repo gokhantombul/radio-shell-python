@@ -50,7 +50,7 @@ class BasicCommands:
             # Wait, settings_service is needed by create_app. We need to pass it or create a new one.
             # Let's import the one from main if possible, or just create it since we have the player's config.
             settings = SettingsService(self.player.config)
-            app = create_app(self.player, self.station_service, settings)
+            app = create_app(self.player, self.station_service, settings, self.system_service)
             
             ui.console.print("[bold green]Web sunucusu arka planda başlatılıyor...[/]")
             

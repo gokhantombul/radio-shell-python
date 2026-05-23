@@ -32,6 +32,15 @@ class DummySettingsService:
     def is_muted(self):
         return False
 
+class DummySystemService:
+    def get_web_info(self):
+        return {
+            "os": "Test OS",
+            "python_version": "3.14.0",
+            "memory_usage_mb": 50.0,
+            "cpu_percent": 5.0
+        }
+
 
 class DummyStationService:
     def __init__(self):
@@ -54,7 +63,7 @@ class DummyStationService:
 
 def test_favorite_endpoint_returns_success_when_removing_favorite():
     station_service = DummyStationService()
-    app = create_app(DummyPlayer(), station_service, DummySettingsService())
+    app = create_app(DummyPlayer(), station_service, DummySettingsService(), DummySystemService())
     toggle_favorite = next(
         route.endpoint
         for route in app.routes
@@ -70,7 +79,7 @@ def test_favorite_endpoint_returns_success_when_removing_favorite():
 
 
 def test_favorite_endpoint_returns_404_for_missing_station():
-    app = create_app(DummyPlayer(), DummyStationService(), DummySettingsService())
+    app = create_app(DummyPlayer(), DummyStationService(), DummySettingsService(), DummySystemService())
     toggle_favorite = next(
         route.endpoint
         for route in app.routes

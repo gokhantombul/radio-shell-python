@@ -8,6 +8,7 @@ from typing import List, Optional
 from src.radio.player import AudioPlayer
 from src.radio.services.station_service import StationService
 from src.radio.services.settings_service import SettingsService
+from src.radio.services.system_service import SystemService
 from src.radio.models import RadioStation
 
 class StationInfo(BaseModel):
@@ -26,7 +27,7 @@ class PlayerStatus(BaseModel):
     is_recording: bool
     elapsed_seconds: Optional[int] = None
 
-def create_app(player: AudioPlayer, station_service: StationService, settings_service: SettingsService):
+def create_app(player: AudioPlayer, station_service: StationService, settings_service: SettingsService, system_service: SystemService):
     from src.radio.services.localization_service import L
     L.set_language(settings_service.get_language())
     if not player.is_playing():
@@ -125,16 +126,7 @@ def create_app(player: AudioPlayer, station_service: StationService, settings_se
 
     @app.get("/api/system")
     def get_system_info():
-        import psutil
-        import platform
-        process = psutil.Process()
-        mem_info = process.memory_info()
-        return {
-            "os": platform.system(),
-            "python_version": platform.python_version(),
-            "memory_usage_mb": round(mem_info.rss / 1024 / 1024, 2),
-            "cpu_percent": process.cpu_percent()
-        }
+        return system_service.get_web_info()
 
     @app.get("/api/language")
     def get_language():

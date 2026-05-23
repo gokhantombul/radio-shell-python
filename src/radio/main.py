@@ -291,6 +291,7 @@ def main():
 
     # 3. Initialize Player
     player = AudioPlayer(config, notification_service)
+    system_service = SystemService(player)
 
     if args.web:
         # WEB MODE
@@ -348,7 +349,7 @@ def main():
             return
 
         _write_web_process_info(config, os.getpid())
-        app = create_app(player, station_service, settings_service)
+        app = create_app(player, station_service, settings_service, system_service)
         
         # Only print if we are not the backgrounded child (stdout is DEVNULL anyway, but let's be clean)
         # However, we don't strictly need to check since stdout is redirected.
@@ -370,9 +371,6 @@ def main():
             _remove_web_process_info(config, os.getpid())
     else:
         # CLI MODE
-        # System Service
-        system_service = SystemService(player)
-
         # 4. Initialize Interactive Shell
         shell = InteractiveShell(station_service)
 
