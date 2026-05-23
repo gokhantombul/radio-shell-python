@@ -5,7 +5,7 @@
       "name": "TRT FM",
       "country": "Türkiye",
       "genre": "Pop/Türkçe",
-      "url": "https://trt.radyotvonline.net/trtfm",
+      "url": "https://rd-trtfm.medya.trt.com.tr/master.m3u8",
       "favorite": false
     },
     {
@@ -13,7 +13,7 @@
       "name": "TRT Radyo 1",
       "country": "Türkiye",
       "genre": "Haber/Kültür",
-      "url": "https://trt.radyotvonline.net/trt1",
+      "url": "https://rd-trtradyo1.medya.trt.com.tr/master.m3u8",
       "favorite": false
     },
     {
@@ -45,7 +45,7 @@
       "name": "TRT Radyo Haber",
       "country": "Türkiye",
       "genre": "Haber",
-      "url": "https://trt.radyotvonline.net/trthaber",
+      "url": "https://rd-trtradyohaber.medya.trt.com.tr/master.m3u8",
       "favorite": false
     },
     {
