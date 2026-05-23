@@ -22,12 +22,16 @@ class PlayerStatus(BaseModel):
     current_station: Optional[StationInfo]
     current_song: Optional[str]
     volume: int
+    is_muted: bool
     is_recording: bool
     elapsed_seconds: Optional[int] = None
 
 def create_app(player: AudioPlayer, station_service: StationService, settings_service: SettingsService):
     from src.radio.services.localization_service import L
     L.set_language(settings_service.get_language())
+    if not player.is_playing():
+        player.volume = settings_service.get_volume()
+        player.muted = settings_service.is_muted()
 
     app = FastAPI(title="Radio Shell API")
 
@@ -66,6 +70,7 @@ def create_app(player: AudioPlayer, station_service: StationService, settings_se
             current_station=current_station_info,
             current_song=player.current_song,
             volume=player.volume,
+            is_muted=player.muted,
             is_recording=player.is_recording() if hasattr(player, 'is_recording') else False,
             elapsed_seconds=elapsed_seconds
         )
@@ -76,7 +81,7 @@ def create_app(player: AudioPlayer, station_service: StationService, settings_se
         if not station:
             raise HTTPException(status_code=404, detail="Station not found")
         
-        player.play(station, player.volume)
+        player.play(station, settings_service.get_volume(), settings_service.is_muted())
         return {"status": "playing", "station": station.name}
 
     @app.post("/api/stop")
@@ -88,16 +93,24 @@ def create_app(player: AudioPlayer, station_service: StationService, settings_se
     def set_volume(level: int):
         if not (0 <= level <= 100):
             raise HTTPException(status_code=400, detail="Volume must be between 0 and 100")
-        player.set_volume(level)
         settings_service.set_volume(level)
-        return {"status": "volume_set", "level": level}
+        if level > 0:
+            settings_service.set_muted(False)
+        player.set_volume(level, unmute=True)
+        return {"status": "volume_set", "level": level, "is_muted": player.muted}
+
+    @app.post("/api/mute/{muted}")
+    def set_mute(muted: bool):
+        player.set_muted(muted)
+        settings_service.set_muted(muted)
+        return {"status": "muted" if muted else "unmuted", "is_muted": muted}
 
     @app.post("/api/favorite/{station_id}")
     def toggle_favorite(station_id: str):
-        success = station_service.toggle_favorite(station_id)
-        if not success:
+        station = station_service.get_station(station_id)
+        if not station:
             raise HTTPException(status_code=404, detail="Station not found")
-        is_fav = station_id in station_service.favorites
+        is_fav = station_service.toggle_favorite(station.id)
         return {"status": "success", "is_favorite": is_fav}
 
     @app.post("/api/record/start")

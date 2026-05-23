@@ -189,6 +189,7 @@ class BasicCommands:
             self.player.current_station,
             self.player.current_song,
             self.player.volume,
+            self.player.muted,
             self.player.is_recording()
         )
 

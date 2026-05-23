@@ -501,7 +501,7 @@ h1 {
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    gap: 12px;
+    gap: 8px;
     flex-wrap: wrap;
 }
 
@@ -524,11 +524,146 @@ h1 {
     margin-right: 8px;
 }
 
+.controls .btn {
+    position: relative;
+    width: 42px;
+    min-width: 42px;
+    min-height: 42px;
+    padding: 0;
+    aspect-ratio: 1;
+}
+
+.controls .btn svg {
+    width: 18px;
+    height: 18px;
+    margin-right: 0;
+}
+
+.controls .btn span:not(.record-dot) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    margin: -1px;
+    padding: 0;
+    border: 0;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+}
+
+.controls .btn[data-tooltip]::before,
+.controls .btn[data-tooltip]::after {
+    position: absolute;
+    left: 50%;
+    z-index: 30;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+}
+
+.controls .btn[data-tooltip]::after {
+    content: attr(data-tooltip);
+    bottom: calc(100% + 12px);
+    max-width: 180px;
+    padding: 7px 10px;
+    border: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+    border-radius: 8px;
+    background: color-mix(in srgb, var(--bg-panel-strong) 94%, #000);
+    color: var(--text-primary);
+    font-size: 0.76rem;
+    font-weight: 850;
+    line-height: 1.15;
+    text-align: center;
+    white-space: nowrap;
+    box-shadow: var(--shadow-soft);
+    transform: translate(-50%, 4px);
+}
+
+.controls .btn[data-tooltip]::before {
+    content: "";
+    bottom: calc(100% + 6px);
+    width: 10px;
+    height: 10px;
+    border-right: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+    border-bottom: 1px solid color-mix(in srgb, var(--accent) 38%, var(--border));
+    background: color-mix(in srgb, var(--bg-panel-strong) 94%, #000);
+    transform: translate(-50%, 4px) rotate(45deg);
+}
+
+.controls .btn[data-tooltip]:not(:disabled):hover::before,
+.controls .btn[data-tooltip]:not(:disabled):hover::after,
+.controls .btn[data-tooltip]:not(:disabled):focus-visible::before,
+.controls .btn[data-tooltip]:not(:disabled):focus-visible::after {
+    opacity: 1;
+}
+
+.controls .btn[data-tooltip]:not(:disabled):hover::after,
+.controls .btn[data-tooltip]:not(:disabled):focus-visible::after {
+    transform: translate(-50%, 0);
+}
+
+.controls .btn[data-tooltip]:not(:disabled):hover::before,
+.controls .btn[data-tooltip]:not(:disabled):focus-visible::before {
+    transform: translate(-50%, 0) rotate(45deg);
+}
+
+.controls #prev-btn::after {
+    left: 0;
+    transform: translate(0, 4px);
+}
+
+.controls #prev-btn::before {
+    left: 21px;
+}
+
+.controls #prev-btn:not(:disabled):hover::after,
+.controls #prev-btn:not(:disabled):focus-visible::after {
+    transform: translate(0, 0);
+}
+
+.controls #stop-btn::after {
+    right: 0;
+    left: auto;
+    transform: translate(0, 4px);
+}
+
+.controls #stop-btn::before {
+    right: 16px;
+    left: auto;
+}
+
+.controls #stop-btn:not(:disabled):hover::after,
+.controls #stop-btn:not(:disabled):focus-visible::after {
+    transform: translate(0, 0);
+}
+
 .btn:hover,
 .btn:focus-visible {
     transform: translateY(-1px);
     border-color: var(--accent);
     box-shadow: var(--shadow-soft);
+}
+
+.btn:disabled {
+    cursor: not-allowed;
+    opacity: 0.48;
+    transform: none;
+    box-shadow: none;
+}
+
+.btn-nav,
+.btn-shuffle,
+.btn-current-favorite {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 34%, transparent);
+}
+
+.btn-current-favorite.is-favorite {
+    color: var(--warning);
+    background: color-mix(in srgb, var(--warning) 14%, transparent);
+    border-color: color-mix(in srgb, var(--warning) 52%, transparent);
 }
 
 .btn-record {
@@ -544,10 +679,21 @@ h1 {
     animation: pulse-record 1.5s ease-in-out infinite;
 }
 
+.btn-mute {
+    color: var(--accent);
+    background: var(--accent-soft);
+    border-color: color-mix(in srgb, var(--accent) 36%, transparent);
+}
+
+.btn-mute.muted {
+    color: #fff;
+    background: var(--danger);
+    border-color: var(--danger);
+}
+
 .record-dot {
     width: 10px;
     height: 10px;
-    margin-right: 8px;
     border-radius: 50%;
     background: currentColor;
 }
@@ -574,6 +720,7 @@ h1 {
     display: inline-flex;
     align-items: center;
     gap: 10px;
+    flex: 0 1 210px;
     min-height: 42px;
     padding: 0 12px;
     border: 1px solid var(--border);
@@ -1723,6 +1870,15 @@ body[data-theme="brutalist"] .btn:focus-visible {
     box-shadow: none;
 }
 
+body[data-theme="brutalist"] .controls .btn[data-tooltip]::after,
+body[data-theme="brutalist"] .controls .btn[data-tooltip]::before {
+    border-color: var(--text-primary);
+    border-radius: 0;
+    background: var(--bg-base);
+    color: var(--text-primary);
+    box-shadow: 3px 3px 0 var(--text-primary);
+}
+
 body[data-theme="brutalist"] .btn-stop {
     color: var(--danger);
     border-color: var(--danger);
@@ -1860,10 +2016,9 @@ body[data-theme="brutalist"] .state-container {
     }
 
     .controls {
-        justify-content: stretch;
+        justify-content: center;
     }
 
-    .btn,
     .volume-wrapper {
         flex: 1 1 auto;
     }
@@ -1907,10 +2062,9 @@ body[data-theme="brutalist"] .state-container {
     }
 
     .controls {
-        flex-direction: column;
+        justify-content: center;
     }
 
-    .btn,
     .volume-wrapper {
         width: 100%;
     }
@@ -2356,6 +2510,24 @@ body[data-theme="theme-win95"] .controls {
     margin-top: 10px;
 }
 
+body[data-theme="theme-win95"] .controls .btn[data-tooltip]::after {
+    border: 1px solid #000;
+    border-color: #fff #000 #000 #fff;
+    border-radius: 0;
+    background: #ffffe1;
+    color: #000;
+    font-family: "MS Sans Serif", sans-serif;
+    font-size: 11px;
+    font-weight: 400;
+    box-shadow: 2px 2px 0 rgba(0, 0, 0, 0.35);
+}
+
+body[data-theme="theme-win95"] .controls .btn[data-tooltip]::before {
+    background: #ffffe1;
+    border-color: #000;
+    border-radius: 0;
+}
+
 body[data-theme="theme-win95"] .playing-info {
     align-items: flex-start;
 }
@@ -2678,16 +2850,37 @@ body[data-theme="winamp-classic"] .elapsed-pill {
 
 body[data-theme="winamp-classic"] .controls {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: repeat(7, 30px);
+    justify-content: end;
     gap: 5px;
 }
 
-body[data-theme="winamp-classic"] #record-btn {
+body[data-theme="winamp-classic"] #prev-btn {
     order: 1;
 }
 
-body[data-theme="winamp-classic"] #stop-btn {
+body[data-theme="winamp-classic"] #next-btn {
     order: 2;
+}
+
+body[data-theme="winamp-classic"] #shuffle-btn {
+    order: 3;
+}
+
+body[data-theme="winamp-classic"] #current-favorite-btn {
+    order: 4;
+}
+
+body[data-theme="winamp-classic"] #record-btn {
+    order: 5;
+}
+
+body[data-theme="winamp-classic"] #mute-btn {
+    order: 6;
+}
+
+body[data-theme="winamp-classic"] #stop-btn {
+    order: 7;
 }
 
 body[data-theme="winamp-classic"] .btn,
@@ -2706,6 +2899,13 @@ body[data-theme="winamp-classic"] .btn {
     padding: 0 8px;
     font-size: 0.68rem;
     text-transform: uppercase;
+}
+
+body[data-theme="winamp-classic"] .controls .btn {
+    width: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
 }
 
 body[data-theme="winamp-classic"] .btn:hover,
@@ -2733,10 +2933,18 @@ body[data-theme="winamp-classic"] .btn svg {
     margin-right: 5px;
 }
 
+body[data-theme="winamp-classic"] .controls .btn svg {
+    margin-right: 0;
+}
+
 body[data-theme="winamp-classic"] .record-dot {
     width: 8px;
     height: 8px;
     margin-right: 6px;
+}
+
+body[data-theme="winamp-classic"] .controls .record-dot {
+    margin-right: 0;
 }
 
 body[data-theme="winamp-classic"] .btn-record {
@@ -2744,14 +2952,38 @@ body[data-theme="winamp-classic"] .btn-record {
 }
 
 body[data-theme="winamp-classic"] .btn-record.recording,
+body[data-theme="winamp-classic"] .btn-mute.muted,
 body[data-theme="winamp-classic"] .btn-stop:hover,
 body[data-theme="winamp-classic"] .btn-stop:focus-visible {
     background: linear-gradient(180deg, #6d3038, #351018);
     color: #fff;
 }
 
+body[data-theme="winamp-classic"] .btn-current-favorite.is-favorite {
+    color: var(--accent-strong);
+}
+
+body[data-theme="winamp-classic"] .controls .btn[data-tooltip]::after {
+    border-radius: 0;
+    border-color: #05070c;
+    background: linear-gradient(180deg, #2d3447, #10141d);
+    color: var(--accent-strong);
+    font-family: "Courier New", monospace;
+    font-size: 0.66rem;
+    text-transform: uppercase;
+    box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.18),
+        inset -1px -1px 0 rgba(0, 0, 0, 0.74),
+        0 0 12px rgba(255, 210, 77, 0.18);
+}
+
+body[data-theme="winamp-classic"] .controls .btn[data-tooltip]::before {
+    border-color: #05070c;
+    background: #10141d;
+}
+
 body[data-theme="winamp-classic"] .volume-wrapper {
-    order: 3;
+    order: 8;
     grid-column: 1 / -1;
     justify-content: stretch;
     padding: 0 8px;
@@ -3077,6 +3309,11 @@ body[data-theme="winamp-classic"] .system-stat {
         grid-template-columns: 1fr;
     }
 
+    body[data-theme="winamp-classic"] .controls {
+        grid-template-columns: repeat(7, 30px);
+        justify-content: center;
+    }
+
     body[data-theme="winamp-classic"] .signal-dial {
         width: 100%;
     }
@@ -3390,6 +3627,22 @@ body[data-theme="besiktas-bjk"] .btn-stop {
 body[data-theme="besiktas-bjk"] .btn-stop:hover {
     background: #ff1a2a;
     box-shadow: 0 0 18px rgba(227, 5, 19, 0.50);
+}
+
+body[data-theme="besiktas-bjk"] .controls .btn[data-tooltip]::after {
+    border-radius: 0;
+    border-color: #e30513;
+    background: #050505;
+    color: #fff;
+    font-family: Impact, sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+body[data-theme="besiktas-bjk"] .controls .btn[data-tooltip]::before {
+    border-color: #e30513;
+    background: #050505;
 }
 
 body[data-theme="besiktas-bjk"] .volume-wrapper .styled-slider {

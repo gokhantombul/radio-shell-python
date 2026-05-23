@@ -45,10 +45,15 @@ class ManagementCommands:
         try:
             parsed, _ = parser.parse_known_args(args)
             station_id = parsed.id_flag or parsed.id
-            if not station_id:
-                ui.print_error("Usage: favori <id>")
-                return
-            station = self.station_service.get_station(station_id)
+            if station_id:
+                station = self.station_service.get_station(station_id)
+            else:
+                current_station = self.player.current_station
+                if not current_station:
+                    ui.print_error(L.get("msg_no_playing_station"))
+                    return
+                station = self.station_service.get_station(current_station.id)
+
             if not station:
                 ui.print_error(L.get("msg_station_not_found"))
                 return
@@ -58,7 +63,7 @@ class ManagementCommands:
             else:
                 ui.print_info(L.get("msg_fav_removed", name=station.name))
         except SystemExit:
-            ui.print_error("Usage: favori <id>")
+            ui.print_error("Usage: favori [id]")
 
     def cmd_favoriler(self, args: List[str]):
         favs = self.station_service.get_favorites()

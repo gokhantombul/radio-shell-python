@@ -321,7 +321,11 @@ def print_station_table(title: str, stations: List[RadioStation], subtitle: Opti
     console.print()
 
 
-def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_recording: bool):
+def print_now_playing(station: RadioStation, song: Optional[str], volume: int, is_muted: bool, is_recording: bool):
+    volume_text = f"%{volume}"
+    if is_muted:
+        volume_text += f" ({L.get('muted')})"
+
     if is_current_theme("winamp-classic"):
         content = f"[{current_theme.highlight}]STATION[/]  [{current_theme.primary}]{station.name}[/]\n"
         content += f"[{current_theme.highlight}]COUNTRY[/]  [{current_theme.primary}]{station.country or '-'}[/]\n"
@@ -330,7 +334,7 @@ def print_now_playing(station: RadioStation, song: Optional[str], volume: int, i
         if song:
             content += f"[{current_theme.highlight}]TITLE[/]    [{current_theme.primary}]{song}[/]\n"
 
-        content += f"[{current_theme.highlight}]VOLUME[/]   [{current_theme.primary}]%{volume}[/]"
+        content += f"[{current_theme.highlight}]VOLUME[/]   [{current_theme.primary}]{volume_text}[/]"
         if is_recording:
             content += f"  [{current_theme.error}]REC[/]"
 
@@ -351,7 +355,7 @@ def print_now_playing(station: RadioStation, song: Optional[str], volume: int, i
     if song:
         content += f"[{current_theme.highlight}]{L.get('song')}:[/] {song}\n"
 
-    content += f"[{current_theme.secondary}]{L.get('volume')}:[/] %{volume}"
+    content += f"[{current_theme.secondary}]{L.get('volume')}:[/] {volume_text}"
     if is_recording:
         content += f" | [{current_theme.error}]● {L.get('recording')}[/]"
 

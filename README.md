@@ -143,9 +143,10 @@ docker run --rm -it \
 | `dur` | Çalmayı durdurur |
 | `durum` | Şu an çalan istasyonu ve şarkı bilgisini gösterir |
 | `ses -s <0-100>` | Ses seviyesini ayarlar |
-| `sonraki` | Son listede bir sonraki istasyona geçer |
-| `onceki` | Son listede bir önceki istasyona geçer |
-| `karistir [-u ülke] [-t tür] [-f]` | Rastgele istasyon çalar |
+| `sessiz` / `mute` | Sesi kapatır veya yeniden açar |
+| `sonraki` / `ileri` | Son listede bir sonraki istasyona geçer |
+| `onceki` / `geri` | Son listede bir önceki istasyona geçer |
+| `karistir [-u ülke] [-t tür] [-f]` / `rastgele [-u ülke] [-t tür] [-f]` | Rastgele istasyon çalar |
 | `uyku -d <dakika>` | Süre sonunda oynatmayı durdurur |
 | `uyku iptal` | Uyku zamanlayıcısını iptal eder |
 | `gecmis [-n adet]` | Son görülen şarkı bilgilerini listeler |
@@ -161,7 +162,7 @@ docker run --rm -it \
 
 | Komut | Açıklama |
 |-------|----------|
-| `favori -i <id>` | İstasyonu favorilere ekler / çıkarır (★) |
+| `favori [id]` | İstasyonu veya çalan istasyonu favorilere ekler / çıkarır (★) |
 | `favoriler` | Favori istasyon listesi |
 
 ### Yönetim
@@ -500,9 +501,10 @@ docker run --rm -it \
 | `dur` | Stop playback |
 | `durum` | Show currently playing station and song info |
 | `ses -s <0-100>` | Set volume level |
-| `sonraki` | Next station in the last list |
-| `onceki` | Previous station in the last list |
-| `karistir [-u country] [-t genre] [-f]` | Play a random station |
+| `sessiz` / `mute` | Toggle mute/unmute |
+| `sonraki` / `ileri` | Next station in the last list |
+| `onceki` / `geri` | Previous station in the last list |
+| `karistir [-u country] [-t genre] [-f]` / `rastgele [-u country] [-t genre] [-f]` | Play a random station |
 | `uyku -d <minutes>` | Stop playback after a delay |
 | `uyku iptal` | Cancel the sleep timer |
 | `gecmis [-n count]` | Show recent song metadata history |
@@ -518,7 +520,7 @@ docker run --rm -it \
 
 | Command | Description |
 |---------|-------------|
-| `favori -i <id>` | Toggle station as favorite (★) |
+| `favori [id]` | Toggle a station or the current station as favorite (★) |
 | `favoriler` | Show favorite stations list |
 
 ### Management

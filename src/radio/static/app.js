@@ -9,6 +9,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const stationNameDisplay = document.getElementById('current-station-name');
     const songTitleDisplay = document.getElementById('current-song-title');
     const stopBtn = document.getElementById('stop-btn');
+    const prevBtn = document.getElementById('prev-btn');
+    const nextBtn = document.getElementById('next-btn');
+    const shuffleBtn = document.getElementById('shuffle-btn');
+    const currentFavoriteBtn = document.getElementById('current-favorite-btn');
+    const currentFavoriteLabel = document.getElementById('current-favorite-label');
+    const muteBtn = document.getElementById('mute-btn');
+    const muteLabel = document.getElementById('mute-label');
     const recordBtn = document.getElementById('record-btn');
     const recordingPill = document.getElementById('recording-pill');
     const elapsedPill = document.getElementById('elapsed-time');
@@ -26,6 +33,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let allStations = [];
     let currentStationId = null;
     let isRecording = false;
+    let isMuted = false;
     let stationsLoaded = false;
     let locales = {};
     let activeFilter = { type: 'all', value: '' };
@@ -79,6 +87,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const key = el.getAttribute('data-i18n-placeholder');
             if (locales[key]) el.setAttribute('placeholder', locales[key]);
         });
+
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            if (locales[key]) el.setAttribute('title', locales[key]);
+        });
+
+        document.querySelectorAll('[data-i18n-tooltip]').forEach(el => {
+            const key = el.getAttribute('data-i18n-tooltip');
+            if (locales[key]) el.dataset.tooltip = locales[key];
+        });
+
+        document.querySelectorAll('[data-i18n-aria-label]').forEach(el => {
+            const key = el.getAttribute('data-i18n-aria-label');
+            if (locales[key]) el.setAttribute('aria-label', locales[key]);
+        });
     }
 
     async function fetchLocalization() {
@@ -104,6 +127,8 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!locRes.ok) throw new Error('Locales API error');
             locales = await locRes.json();
             applyTranslations();
+            updateMuteUi(isMuted);
+            updateCurrentFavoriteUi();
             buildFilters();
             if (stationsLoaded) {
                 renderStations(getVisibleStations());
@@ -219,6 +244,33 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    function getCurrentStation() {
+        return allStations.find(station => station.id === currentStationId) || null;
+    }
+
+    function updatePlaybackControlsUi() {
+        const hasVisibleStations = getVisibleStations().length > 0;
+        prevBtn.disabled = !hasVisibleStations;
+        nextBtn.disabled = !hasVisibleStations;
+        shuffleBtn.disabled = !hasVisibleStations;
+        updateCurrentFavoriteUi();
+    }
+
+    function updateCurrentFavoriteUi() {
+        const currentStation = getCurrentStation();
+        const isFavorite = Boolean(currentStation && currentStation.is_favorite);
+        currentFavoriteBtn.disabled = !currentStationId;
+        currentFavoriteBtn.classList.toggle('is-favorite', isFavorite);
+        currentFavoriteBtn.setAttribute('aria-pressed', String(isFavorite));
+
+        const label = isFavorite
+            ? t('web_unfavorite', 'Unfavorite')
+            : t('web_favorite', 'Favorite');
+        currentFavoriteLabel.textContent = label;
+        currentFavoriteBtn.dataset.tooltip = label;
+        currentFavoriteBtn.setAttribute('aria-label', label);
+    }
+
     function starIcon(isFavorite) {
         const fill = isFavorite ? 'currentColor' : 'none';
         return `
@@ -236,6 +288,7 @@ document.addEventListener('DOMContentLoaded', () => {
             state.className = 'state-container';
             state.innerHTML = `<p>${t('web_no_results', 'No results found.')}</p>`;
             stationList.appendChild(state);
+            updatePlaybackControlsUi();
             return;
         }
 
@@ -294,6 +347,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
             stationList.appendChild(card);
         });
+
+        updatePlaybackControlsUi();
     }
 
     async function toggleFavorite(id) {
@@ -312,10 +367,57 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             buildFilters();
             renderStations(getVisibleStations());
+            updateCurrentFavoriteUi();
+            return data.is_favorite;
         } catch (error) {
             console.error('Error toggling favorite:', error);
             showToast(t('msg_error', 'Error'), 'error');
+            return null;
         }
+    }
+
+    function pickVisibleStation(offset) {
+        const visibleStations = getVisibleStations();
+        if (visibleStations.length === 0) return null;
+
+        const currentIndex = visibleStations.findIndex(station => station.id === currentStationId);
+        if (currentIndex === -1) {
+            return offset >= 0 ? visibleStations[0] : visibleStations[visibleStations.length - 1];
+        }
+
+        const nextIndex = (currentIndex + offset + visibleStations.length) % visibleStations.length;
+        return visibleStations[nextIndex];
+    }
+
+    async function playAdjacent(offset) {
+        const station = pickVisibleStation(offset);
+        if (!station) {
+            showToast(t('web_no_results', 'No results found.'), 'error');
+            return;
+        }
+        await playStation(station.id);
+    }
+
+    async function shuffleVisibleStation() {
+        const visibleStations = getVisibleStations();
+        if (visibleStations.length === 0) {
+            showToast(t('web_no_results', 'No results found.'), 'error');
+            return;
+        }
+
+        const candidates = visibleStations.length > 1
+            ? visibleStations.filter(station => station.id !== currentStationId)
+            : visibleStations;
+        const station = candidates[Math.floor(Math.random() * candidates.length)];
+        await playStation(station.id);
+    }
+
+    async function toggleCurrentFavorite() {
+        if (!currentStationId) {
+            showToast(t('msg_no_playing_station', 'No station currently playing.'), 'error');
+            return;
+        }
+        await toggleFavorite(currentStationId);
     }
 
     async function playStation(id) {
@@ -355,21 +457,40 @@ document.addEventListener('DOMContentLoaded', () => {
         recordingPill.classList.toggle('hidden', !recording);
     }
 
+    function updateMuteUi(muted) {
+        isMuted = muted;
+        muteBtn.classList.toggle('muted', muted);
+        muteBtn.setAttribute('aria-pressed', String(muted));
+
+        const label = muted
+            ? t('web_unmute', 'Unmute')
+            : t('web_mute', 'Mute');
+        muteLabel.textContent = label;
+        muteBtn.dataset.tooltip = label;
+        muteBtn.setAttribute('aria-label', label);
+    }
+
     async function updateStatus() {
         try {
             const response = await fetch('/api/status');
             if (!response.ok) throw new Error('Status API error');
             const status = await response.json();
+            updateMuteUi(Boolean(status.is_muted));
 
             if (status.is_playing) {
                 nowPlaying.classList.remove('hidden');
 
                 if (status.current_station) {
                     stationNameDisplay.textContent = status.current_station.name;
+                    const station = allStations.find(s => s.id === status.current_station.id);
+                    if (station) {
+                        station.is_favorite = Boolean(status.current_station.is_favorite);
+                    }
                     if (currentStationId !== status.current_station.id) {
                         currentStationId = status.current_station.id;
                         renderStations(getVisibleStations());
                     }
+                    updateCurrentFavoriteUi();
                 }
 
                 songTitleDisplay.textContent =
@@ -398,9 +519,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else {
                 nowPlaying.classList.add('hidden');
+                const hadCurrentStation = Boolean(currentStationId);
                 currentStationId = null;
                 equalizer.classList.add('paused');
                 updateRecordingUi(false);
+                updateCurrentFavoriteUi();
+                if (hadCurrentStation) {
+                    renderStations(getVisibleStations());
+                }
                 stopElapsedTick();
                 elapsedPill.classList.add('hidden');
             }
@@ -427,8 +553,23 @@ document.addEventListener('DOMContentLoaded', () => {
         try {
             const response = await fetch(`/api/volume/${level}`, { method: 'POST' });
             if (!response.ok) throw new Error('Volume API error');
+            const result = await response.json();
+            updateMuteUi(Boolean(result.is_muted));
         } catch (error) {
             console.error('Error setting volume:', error);
+            showToast(t('msg_error', 'Error'), 'error');
+        }
+    }
+
+    async function toggleMute() {
+        try {
+            const response = await fetch(`/api/mute/${!isMuted}`, { method: 'POST' });
+            if (!response.ok) throw new Error('Mute API error');
+            const result = await response.json();
+            updateMuteUi(Boolean(result.is_muted));
+            showToast(result.is_muted ? t('msg_muted', 'Muted.') : t('msg_unmuted', 'Sound restored.'));
+        } catch (error) {
+            console.error('Mute error:', error);
             showToast(t('msg_error', 'Error'), 'error');
         }
     }
@@ -468,7 +609,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     searchInput.addEventListener('input', () => renderStations(getVisibleStations()));
+    prevBtn.addEventListener('click', () => playAdjacent(-1));
+    nextBtn.addEventListener('click', () => playAdjacent(1));
+    shuffleBtn.addEventListener('click', shuffleVisibleStation);
+    currentFavoriteBtn.addEventListener('click', toggleCurrentFavorite);
     stopBtn.addEventListener('click', stopPlayback);
+    muteBtn.addEventListener('click', toggleMute);
     recordBtn.addEventListener('click', toggleRecording);
     volumeSlider.addEventListener('input', event => {
         volumeValue.textContent = `${event.target.value}%`;

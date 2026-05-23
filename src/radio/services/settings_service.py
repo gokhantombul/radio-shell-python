@@ -19,6 +19,13 @@ class SettingsService:
         self.settings = self.settings.with_volume(volume)
         self.save()
 
+    def is_muted(self) -> bool:
+        return self.settings.muted
+
+    def set_muted(self, muted: bool):
+        self.settings = self.settings.with_muted(muted)
+        self.save()
+
     def get_last_station_id(self) -> Optional[str]:
         return self.settings.lastStationId
 
@@ -51,7 +58,8 @@ class SettingsService:
                     volume=data.get('volume', 100),
                     lastStationId=data.get('lastStationId'),
                     notificationsEnabled=data.get('notificationsEnabled', True),
-                    language=data.get('language', 'en')
+                    language=data.get('language', 'en'),
+                    muted=data.get('muted', False)
                 )
         except Exception:
             pass
@@ -68,7 +76,8 @@ class SettingsService:
                     'volume': self.settings.volume,
                     'lastStationId': self.settings.lastStationId,
                     'notificationsEnabled': self.settings.notificationsEnabled,
-                    'language': self.settings.language
+                    'language': self.settings.language,
+                    'muted': self.settings.muted
                 }
                 json.dump(data, f, indent=2)
         except Exception:

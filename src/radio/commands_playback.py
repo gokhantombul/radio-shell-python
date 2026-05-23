@@ -37,9 +37,14 @@ class PlaybackCommands:
         shell.register("son", self.cmd_son, "cmd_son_desc", "cat_playback")
         shell.register("dur", self.cmd_dur, "cmd_durdur_desc", "cat_playback")
         shell.register("ses", self.cmd_ses, "cmd_ses_desc", "cat_playback")
+        shell.register("sessiz", self.cmd_sessiz, "cmd_sessiz_desc", "cat_playback")
+        shell.register("mute", self.cmd_sessiz, "cmd_sessiz_desc", "cat_playback")
         shell.register("sonraki", self.cmd_sonraki, "cmd_sonraki_desc", "cat_playback")
+        shell.register("ileri", self.cmd_sonraki, "cmd_sonraki_desc", "cat_playback")
         shell.register("onceki", self.cmd_onceki, "cmd_onceki_desc", "cat_playback")
+        shell.register("geri", self.cmd_onceki, "cmd_onceki_desc", "cat_playback")
         shell.register("karistir", self.cmd_karistir, "cmd_karistir_desc", "cat_playback")
+        shell.register("rastgele", self.cmd_karistir, "cmd_karistir_desc", "cat_playback")
         shell.register("uyku", self.cmd_uyku, "cmd_uyku_desc", "cat_playback")
         shell.register("gecmis", self.cmd_gecmis, "cmd_gecmis_desc", "cat_playback")
 
@@ -52,7 +57,7 @@ class PlaybackCommands:
     def play_station(self, station):
         self._record_session()
         ui.show_connecting_progress(station.name)
-        self.player.play(station, self.settings_service.get_volume())
+        self.player.play(station, self.settings_service.get_volume(), self.settings_service.is_muted())
         self.settings_service.set_last_station_id(station.id)
         self.session_start = datetime.now()
         ui.print_success(L.get("msg_playing", name=station.name))
@@ -98,10 +103,29 @@ class PlaybackCommands:
             parsed = parser.parse_args(args)
             vol = max(0, min(100, parsed.seviye))
             self.settings_service.set_volume(vol)
-            self.player.set_volume(vol)
+            if vol > 0:
+                self.settings_service.set_muted(False)
+            self.player.set_volume(vol, unmute=True)
             ui.print_success(L.get("msg_vol_set", vol=vol))
         except SystemExit:
             ui.print_error("Usage: ses -s <0-100>")
+
+    def cmd_sessiz(self, args: List[str]):
+        if args:
+            state = args[0].lower()
+            if state in ("ac", "on", "1", "true", "evet"):
+                muted = True
+            elif state in ("kapat", "off", "0", "false", "hayir", "hayır"):
+                muted = False
+            else:
+                ui.print_error("Usage: sessiz [ac|kapat]")
+                return
+        else:
+            muted = not self.settings_service.is_muted()
+
+        self.settings_service.set_muted(muted)
+        self.player.set_muted(muted)
+        ui.print_success(L.get("msg_muted" if muted else "msg_unmuted"))
 
     def _get_adjacent(self, offset: int):
         last_list = self.basic_cmds.last_list

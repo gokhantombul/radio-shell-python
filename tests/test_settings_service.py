@@ -16,19 +16,23 @@ def temp_config():
 def test_settings_persistence(temp_config):
     service = SettingsService(temp_config)
     assert service.get_volume() == 100  # default
+    assert service.is_muted() is False  # default
     assert service.is_notifications_enabled() is True  # default
     assert service.get_last_station_id() is None  # default
 
     service.set_volume(75)
+    service.set_muted(True)
     service.set_last_station_id("tr-powerfm")
     service.set_notifications_enabled(False)
 
     assert service.get_volume() == 75
+    assert service.is_muted() is True
     assert service.get_last_station_id() == "tr-powerfm"
     assert service.is_notifications_enabled() is False
 
     # Reload from disk
     service2 = SettingsService(temp_config)
     assert service2.get_volume() == 75
+    assert service2.is_muted() is True
     assert service2.get_last_station_id() == "tr-powerfm"
     assert service2.is_notifications_enabled() is False

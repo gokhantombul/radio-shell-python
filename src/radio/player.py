@@ -22,6 +22,7 @@ class AudioPlayer:
         self.current_station: Optional[RadioStation] = None
         self.current_song: Optional[str] = None
         self.volume: int = 100
+        self.muted: bool = False
 
         self.on_song_change: Optional[Callable[[str], None]] = None
         self._stop_event = threading.Event()
@@ -34,10 +35,12 @@ class AudioPlayer:
         self.channels: Optional[str] = None
         self.bitrate: Optional[str] = None
 
-    def play(self, station: RadioStation, initial_volume: int):
+    def play(self, station: RadioStation, initial_volume: int, muted: Optional[bool] = None):
         self.stop()
         self.current_station = station
-        self.volume = initial_volume
+        self.volume = max(0, min(100, initial_volume))
+        if muted is not None:
+            self.muted = muted
         self.current_song = None
         self.playback_start_time = datetime.now()
         self.last_metadata_update = None
@@ -63,7 +66,7 @@ class AudioPlayer:
         else:
             cmd.extend(["-loglevel", "info"])
 
-        cmd.extend(["-volume", str(self.volume), self.current_station.url])
+        cmd.extend(["-volume", str(self.effective_volume), self.current_station.url])
 
         try:
             self.process = subprocess.Popen(
@@ -130,18 +133,38 @@ class AudioPlayer:
 
         self.stop_recording()
 
-    def set_volume(self, volume: int):
+    @property
+    def effective_volume(self) -> int:
+        return 0 if self.muted else self.volume
+
+    def _restart_if_playing(self):
+        if not self.is_playing():
+            return
+
+        if self.process:
+            try:
+                self.process.terminate()
+                self.process.wait(timeout=1)
+            except Exception:
+                self.process.kill()
+            self.process = None
+        self._start_ffplay()
+
+    def set_volume(self, volume: int, unmute: bool = False):
         self.volume = max(0, min(100, volume))
-        if self.is_playing():
-            # Restart the process so the new volume takes effect
-            if self.process:
-                try:
-                    self.process.terminate()
-                    self.process.wait(timeout=1)
-                except Exception:
-                    self.process.kill()
-                self.process = None
-            self._start_ffplay()
+        if unmute and self.volume > 0:
+            self.muted = False
+        self._restart_if_playing()
+
+    def set_muted(self, muted: bool):
+        if self.muted == muted:
+            return
+        self.muted = muted
+        self._restart_if_playing()
+
+    def toggle_muted(self) -> bool:
+        self.set_muted(not self.muted)
+        return self.muted
 
     def is_playing(self) -> bool:
         return self.process is not None and self.process.poll() is None

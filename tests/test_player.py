@@ -1,4 +1,5 @@
 import unittest
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 from src.radio.player import AudioPlayer
 from src.radio.config import RadioConfig
@@ -41,6 +42,31 @@ class TestAudioPlayer(unittest.TestCase):
         self.assertIn("/tmp/radio-recordings/test_station_20231027_120000.mp3", res_stop)
         self.assertIsNone(self.player.current_record_path)
         self.assertIsNone(self.player.record_process)
+
+    @patch("subprocess.Popen")
+    def test_muted_player_starts_ffplay_with_zero_effective_volume(self, mock_popen):
+        station = RadioStation("test-id", "Test Station", "TR", "Pop", "http://test.url")
+        mock_process = MagicMock()
+        mock_process.stderr = None
+        mock_popen.return_value = mock_process
+        self.config.player = SimpleNamespace(command="ffplay", args=["-nodisp"])
+
+        self.player.current_station = station
+        self.player.volume = 80
+        self.player.muted = True
+
+        self.player._start_ffplay()
+
+        cmd = mock_popen.call_args.args[0]
+        self.assertEqual(cmd[cmd.index("-volume") + 1], "0")
+
+    def test_setting_volume_can_unmute_without_losing_volume(self):
+        self.player.muted = True
+
+        self.player.set_volume(40, unmute=True)
+
+        self.assertEqual(self.player.volume, 40)
+        self.assertFalse(self.player.muted)
 
 
 if __name__ == "__main__":

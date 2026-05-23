@@ -205,6 +205,12 @@ class InteractiveShell:
 
         genre_part = f'{SEP}🏷  {genre}' if genre else ''
         rec_part = f'  <ansired>🔴  {L.get("recording")}</ansired>' if p.is_recording() else ''
+        volume_part = f'{L.get("muted")} {p.volume}%' if p.muted else f'{p.volume}%'
+        volume_toolbar_part = (
+            f'{SEP}<ansibrightblue>🔇  {volume_part}</ansibrightblue>'
+            if p.muted
+            else f'{SEP}<ansibrightblue>🔊  {volume_part}</ansibrightblue>'
+        )
 
         if ui.is_current_theme("winamp-classic"):
             title = song_title or (L.get("waiting_song") if show_waiting_msg else "—")
@@ -214,7 +220,7 @@ class InteractiveShell:
                 f'  <ansiyellow>▶  {title}</ansiyellow>'
                 f'  <ansibrightblack>│</ansibrightblack>  <ansibrightgreen>{country}</ansibrightgreen>'
                 f'  <ansibrightblack>│</ansibrightblack>  <ansibrightblue>{codec_str}</ansibrightblue>'
-                f'  <ansibrightblack>│</ansibrightblack>  <ansiyellow>VOL {p.volume}%</ansiyellow>'
+                f'  <ansibrightblack>│</ansibrightblack>  <ansiyellow>VOL {volume_part}</ansiyellow>'
                 f'  <ansibrightblack>│</ansibrightblack>  {elapsed_str}'
                 f'{winamp_rec}  '
             )
@@ -225,7 +231,7 @@ class InteractiveShell:
             f'{SEP}🌍  {country}'
             f'{genre_part}'
             f'{SEP}📡  {codec_str}'
-            f'{SEP}<ansibrightblue>🔊  {p.volume}%</ansibrightblue>'
+            f'{volume_toolbar_part}'
             f'{SEP}🕒  {elapsed_str}'
             f'{rec_part}  '
         )
