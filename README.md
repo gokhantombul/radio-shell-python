@@ -43,6 +43,12 @@ cd radio-shell-python
 chmod +x radio.sh
 ./radio.sh
 
+# Web arayüzünü arka planda başlat
+./radio.sh --web
+
+# Arka plandaki web arayüzünü durdur
+./radio.sh --kill
+
 # Windows (cmd veya PowerShell)
 radio.bat
 ```
@@ -62,6 +68,8 @@ Kurulumdan sonra her terminalden sadece `radio` yazarak uygulamayı açabilirsin
 # → /usr/local/bin/radio veya ~/.local/bin/radio sembolik bağlantısı oluşturulur
 
 radio   # artık her yerden çalışır
+radio --web        # web arayüzünü başlatır
+radio --kill       # arka plandaki web arayüzünü durdurur
 
 # Kaldırmak için:
 ./radio.sh --uninstall
@@ -345,6 +353,7 @@ Tüm kullanıcı verisi `~/.radio-shell/` altında saklanır:
 ├── settings.json         # Ses seviyesi, son çalınan istasyon, bildirim ayarı
 ├── stats.json            # Dinleme istatistikleri
 ├── theme                 # Seçili renk teması
+├── web.pid               # Arka plan web sunucusu PID bilgisi
 └── recordings/           # MP3 kayıtları
 ```
 
@@ -391,6 +400,12 @@ cd radio-shell-python
 chmod +x radio.sh
 ./radio.sh
 
+# Start the web interface in the background
+./radio.sh --web
+
+# Stop the background web interface
+./radio.sh --kill
+
 # Windows (cmd or PowerShell)
 radio.bat
 ```
@@ -410,6 +425,8 @@ After installation you can launch the app from any terminal by typing `radio`.
 # → creates a symlink at /usr/local/bin/radio or ~/.local/bin/radio
 
 radio   # works from anywhere now
+radio --web        # starts the web interface
+radio --kill       # stops the background web interface
 
 # To uninstall:
 ./radio.sh --uninstall
@@ -652,6 +669,7 @@ All user data is stored under `~/.radio-shell/`:
 ├── settings.json         # Volume, last station, notification setting
 ├── stats.json            # Listening statistics
 ├── theme                 # Selected color theme
+├── web.pid               # Background web server PID metadata
 └── recordings/           # MP3 recordings
 ```
 
