@@ -33,6 +33,7 @@ THEMES = {
     "midnight": Theme("bold magenta", "blue", "bright_cyan", "bright_green", "bright_red"),
     "sakura": Theme("bright_magenta", "magenta", "bright_white", "bright_green", "bright_red"),
     "winamp-classic": Theme("#00ff66", "#2f5dff", "#ffb000", "#00ff66", "#ff4048"),
+    "besiktas": Theme("#ffffff", "#888888", "#e30513", "#00cc44", "#e30513"),
 }
 
 current_theme = THEMES["default"]
@@ -77,6 +78,65 @@ def get_themes() -> List[str]:
 
 def is_current_theme(theme_name: str) -> bool:
     return current_theme_name == theme_name
+
+
+def _print_besiktas_banner():
+    width = 66
+    app_title = L.get("app_title")
+    app_line = app_title[:60]
+    version = "v2.0.0 | Python 3.14 + Rich"
+
+    t = Text()
+
+    # Top border
+    t.append("\n  ╔", style=current_theme.secondary)
+    t.append("═" * width, style=current_theme.secondary)
+    t.append("╗\n", style=current_theme.secondary)
+
+    # Jersey stripe row (3 white + 3 dark × 11 = 66 chars)
+    t.append("  ║", style=current_theme.secondary)
+    for _ in range(11):
+        t.append("███", style=f"bold {current_theme.primary}")
+        t.append("   ", style="")
+    t.append("║\n", style=current_theme.secondary)
+
+    # Title row: [BJK]   RADIO SHELL   [BJK]  — centered
+    inner = "[BJK]   RADIO SHELL   [BJK]"
+    left_pad = (width - len(inner)) // 2
+    right_pad = width - len(inner) - left_pad
+    t.append(f"  ║{' ' * left_pad}", style=current_theme.secondary)
+    t.append("[BJK]", style=f"bold {current_theme.highlight}")
+    t.append("   RADIO SHELL   ", style=f"bold {current_theme.primary}")
+    t.append("[BJK]", style=f"bold {current_theme.highlight}")
+    t.append(f"{' ' * right_pad}║\n", style=current_theme.secondary)
+
+    # App title row — centered
+    app_pad_l = (width - len(app_line)) // 2
+    app_pad_r = width - len(app_line) - app_pad_l
+    t.append(f"  ║{' ' * app_pad_l}", style=current_theme.secondary)
+    t.append(app_line, style=f"bold {current_theme.primary}")
+    t.append(f"{' ' * app_pad_r}║\n", style=current_theme.secondary)
+
+    # Version row — centered
+    ver_pad_l = (width - len(version)) // 2
+    ver_pad_r = width - len(version) - ver_pad_l
+    t.append(f"  ║{' ' * ver_pad_l}", style=current_theme.secondary)
+    t.append(version, style="dim")
+    t.append(f"{' ' * ver_pad_r}║\n", style=current_theme.secondary)
+
+    # Jersey stripe row (bottom)
+    t.append("  ║", style=current_theme.secondary)
+    for _ in range(11):
+        t.append("███", style=f"bold {current_theme.primary}")
+        t.append("   ", style="")
+    t.append("║\n", style=current_theme.secondary)
+
+    # Bottom border
+    t.append("  ╚", style=current_theme.secondary)
+    t.append("═" * width, style=current_theme.secondary)
+    t.append("╝\n", style=current_theme.secondary)
+
+    console.print(t)
 
 
 def _print_winamp_banner():
@@ -125,6 +185,9 @@ def _print_winamp_banner():
 
 
 def print_banner():
+    if is_current_theme("besiktas"):
+        _print_besiktas_banner()
+        return
     if is_current_theme("winamp-classic"):
         _print_winamp_banner()
         return
@@ -160,6 +223,12 @@ def print_header(title: str):
         ui_text.append(" WINAMP ", style=f"bold {current_theme.highlight}")
         ui_text.append("▌▌ ", style=f"bold {current_theme.primary}")
         ui_text.append(title.upper(), style=f"bold {current_theme.primary}")
+    elif is_current_theme("besiktas"):
+        ui_text.append(" [BJK] ", style=f"bold {current_theme.highlight}")
+        ui_text.append("█ ", style=f"bold {current_theme.primary}")
+        ui_text.append(title.upper(), style=f"bold {current_theme.primary}")
+        ui_text.append(" █ ", style=f"bold {current_theme.primary}")
+        ui_text.append("[BJK] ", style=f"bold {current_theme.highlight}")
     else:
         ui_text.append(" ❯❯ ", style=f"bold {current_theme.highlight}")
         ui_text.append(title, style=f"bold {current_theme.primary}")
@@ -167,7 +236,7 @@ def print_header(title: str):
 
     panel = Panel(
         ui_text,
-        box=box.SQUARE if is_current_theme("winamp-classic") else box.HORIZONTALS,
+        box=box.SQUARE if is_current_theme("winamp-classic") or is_current_theme("besiktas") else box.HORIZONTALS,
         border_style=current_theme.secondary,
         padding=(0, 2),
         expand=False

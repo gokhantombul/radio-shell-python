@@ -259,14 +259,13 @@ def main():
     parser.add_argument("--web", action="store_true", help="Start the web interface")
     parser.add_argument("--foreground", action="store_true", help="Run web server in foreground")
     parser.add_argument("--kill", action="store_true", help="Stop the background web server")
-    parser.add_argument("--kill-web", action="store_true", help="Stop the background web server")
     args = parser.parse_args()
 
     # 1. Initialize Configuration
     config = RadioConfig()
     config.ensure_dirs()
 
-    if args.kill_web or args.kill:
+    if args.kill:
         stop_background_web_server(config)
         return
 

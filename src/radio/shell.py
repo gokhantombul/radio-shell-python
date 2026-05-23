@@ -242,6 +242,8 @@ class InteractiveShell:
         "white": "ansiwhite", "bold white": "ansiwhite", "bright_white": "ansiwhite",
         "#00ff66": "ansibrightgreen", "#2f5dff": "ansibrightblue",
         "#ffb000": "ansiyellow", "#ff4048": "ansired",
+        "#ffffff": "ansibrightwhite", "#888888": "ansiwhite",
+        "#e30513": "ansired", "#00cc44": "ansigreen",
     }
 
     def _get_prompt(self):
@@ -256,6 +258,16 @@ class InteractiveShell:
             if song:
                 return HTML(f'<ansibrightgreen>▌▌ {station_name}</ansibrightgreen> <ansiyellow>({song})</ansiyellow> <ansiyellow>▶</ansiyellow> ')
             return HTML(f'<ansibrightgreen>▌▌ {station_name}</ansibrightgreen> <ansiyellow>▶</ansiyellow> ')
+
+        if ui.is_current_theme("besiktas"):
+            if not self.player or not self.player.is_playing():
+                return HTML('<ansired>[BJK]</ansired> <ansibrightwhite>radio</ansibrightwhite> <ansired>❯</ansired> ')
+            station = self.player.current_station
+            station_name = station.name if station else "Radyo"
+            song = self.player.current_song
+            if song:
+                return HTML(f'<ansired>[BJK]</ansired> <ansibrightwhite>{station_name}</ansibrightwhite> <ansiyellow>({song})</ansiyellow> <ansired>❯</ansired> ')
+            return HTML(f'<ansired>[BJK]</ansired> <ansibrightwhite>{station_name}</ansibrightwhite> <ansired>❯</ansired> ')
 
         primary_color = ui.current_theme.primary
         ansi_primary = self._RICH_TO_ANSI.get(primary_color, "ansicyan")

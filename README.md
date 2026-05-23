@@ -47,7 +47,7 @@ chmod +x radio.sh
 ./radio.sh --web
 
 # Arka plandaki web arayüzünü durdur
-./radio.sh --kill
+radio --kill
 
 # Windows (cmd veya PowerShell)
 radio.bat
@@ -404,7 +404,7 @@ chmod +x radio.sh
 ./radio.sh --web
 
 # Stop the background web interface
-./radio.sh --kill
+radio --kill
 
 # Windows (cmd or PowerShell)
 radio.bat

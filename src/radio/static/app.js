@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const DEFAULT_THEME = 'shell-glass';
-    const THEMES = new Set(['shell-glass', 'premium-radio', 'compact-dashboard', 'neon-live', 'midnight', 'sakura', 'retro-crt', 'brutalist', 'theme-car', 'theme-win95', 'winamp-classic']);
+    const THEMES = new Set(['shell-glass', 'premium-radio', 'compact-dashboard', 'neon-live', 'midnight', 'sakura', 'retro-crt', 'brutalist', 'theme-car', 'theme-win95', 'winamp-classic', 'besiktas-bjk']);
 
     const stationList = document.getElementById('station-list');
     const searchInput = document.getElementById('search-input');

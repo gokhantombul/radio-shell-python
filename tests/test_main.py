@@ -1,5 +1,7 @@
 from types import SimpleNamespace
 
+import pytest
+
 from src.radio import main
 
 
@@ -20,6 +22,14 @@ def test_main_accepts_kill_without_web(monkeypatch):
 
     assert called["ensured"] is True
     assert isinstance(called["stopped"], DummyConfig)
+
+
+def test_main_rejects_removed_web_kill_alias(monkeypatch):
+    removed_alias = "--" + "kill" + "-web"
+    monkeypatch.setattr(main.sys, "argv", ["radio", removed_alias])
+
+    with pytest.raises(SystemExit):
+        main.main()
 
 
 def test_web_process_info_round_trip(tmp_path, monkeypatch):
