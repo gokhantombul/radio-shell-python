@@ -205,7 +205,7 @@
       "name": "Alem FM",
       "country": "Türkiye",
       "genre": "Pop/Sohbet",
-      "url": "https://turkmedya.radyotvonline.net/turkmedya/alemfm.stream/playlist.m3u8",
+      "url": "https://turkmedya.radyotvonline.net/alemfmaac",
       "favorite": false
     },
     {
@@ -213,7 +213,7 @@
       "name": "Show Radyo",
       "country": "Türkiye",
       "genre": "Pop",
-      "url": "https://listen.showradyo.com.tr/showradyo/mpeg/icecast.audio",
+      "url": "https://edge1.radyotvonline.net/shoutcast/play/showradyo",
       "favorite": false
     },
     {
@@ -221,7 +221,7 @@
       "name": "Radyo Viva",
       "country": "Türkiye",
       "genre": "Pop",
-      "url": "https://listen.radyoviva.com.tr/radyoviva/mpeg/icecast.audio",
+      "url": "https://edge1.radyotvonline.net/shoutcast/play/radyoviva",
       "favorite": false
     },
     {
@@ -549,7 +549,7 @@
       "name": "SWR3",
       "country": "Almanya",
       "genre": "Pop/Rock",
-      "url": "https://swr-swr3-live.sslcast.addradio.de/swr/swr3/live/mp3/128/stream.mp3",
+      "url": "https://liveradio.swr.de/sw282p3/swr3/play.mp3",
       "favorite": false
     },
     {
@@ -557,7 +557,7 @@
       "name": "SWR1",
       "country": "Almanya",
       "genre": "Pop/Oldies",
-      "url": "https://swr-swr1-bw.sslcast.addradio.de/swr/swr1/bw/mp3/128/stream.mp3",
+      "url": "https://liveradio.swr.de/sw282p3/swr1bw/play.mp3",
       "favorite": false
     },
     {
