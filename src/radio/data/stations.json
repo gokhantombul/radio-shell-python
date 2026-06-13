@@ -85,7 +85,7 @@
       "name": "Kral FM",
       "country": "Türkiye",
       "genre": "Türkçe Pop",
-      "url": "https://dygvideo.dygdigital.com/kralfm/playlist.m3u8",
+      "url": "https://dygedge2.radyotvonline.net/kralfm/playlist.m3u8",
       "favorite": false
     },
     {
@@ -93,7 +93,7 @@
       "name": "Kral Pop",
       "country": "Türkiye",
       "genre": "Pop",
-      "url": "https://dygvideo.dygdigital.com/kralpop/playlist.m3u8",
+      "url": "https://dygedge2.radyotvonline.net/kralpop/playlist.m3u8",
       "favorite": false
     },
     {
@@ -157,7 +157,7 @@
       "name": "NTV Radyo",
       "country": "Türkiye",
       "genre": "Haber/Kültür",
-      "url": "https://dygvideo.dygdigital.com/ntvradyo/playlist.m3u8",
+      "url": "https://moondigitaledge.radyotvonline.net/ntvradyo/playlist.m3u8",
       "favorite": false
     },
     {
@@ -285,7 +285,7 @@
       "name": "JoyTürk Rock",
       "country": "Türkiye",
       "genre": "Rock/Indie",
-      "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/JOYTURK_ROCK_SC",
+      "url": "http://21633.live.streamtheworld.com/JOYTURK_ROCK128AAC.aac?/;stream.mp3",
       "favorite": false
     },
     {
@@ -389,7 +389,7 @@
       "name": "BBC Radio 1",
       "country": "İngiltere",
       "genre": "Pop/Rock",
-      "url": "http://stream.live.vc.bbcmedia.co.uk/bbc_radio_one",
+      "url": "http://a.files.bbci.co.uk/ms6/live/3441A116-B12E-4D2F-ACA8-C1984642FA4B/audio/simulcast/hls/nonuk/pc_hd_abr_v2/ak/bbc_radio_one.m3u8",
       "favorite": false
     },
     {
@@ -397,7 +397,7 @@
       "name": "BBC Radio 2",
       "country": "İngiltere",
       "genre": "Adult Contemporary",
-      "url": "http://stream.live.vc.bbcmedia.co.uk/bbc_radio_two",
+      "url": "http://a.files.bbci.co.uk/ms6/live/3441A116-B12E-4D2F-ACA8-C1984642FA4B/audio/simulcast/hls/nonuk/pc_hd_abr_v2/cf/bbc_radio_two.m3u8",
       "favorite": false
     },
     {
@@ -405,7 +405,7 @@
       "name": "BBC Radio 3",
       "country": "İngiltere",
       "genre": "Classical",
-      "url": "http://stream.live.vc.bbcmedia.co.uk/bbc_radio_three",
+      "url": "http://a.files.bbci.co.uk/ms6/live/3441A116-B12E-4D2F-ACA8-C1984642FA4B/audio/simulcast/hls/nonuk/pc_hd_abr_v2/ak/bbc_radio_three.m3u8",
       "favorite": false
     },
     {
@@ -413,7 +413,7 @@
       "name": "BBC Radio 4",
       "country": "İngiltere",
       "genre": "Talk/News",
-      "url": "http://stream.live.vc.bbcmedia.co.uk/bbc_radio_fourfm",
+      "url": "http://a.files.bbci.co.uk/ms6/live/3441A116-B12E-4D2F-ACA8-C1984642FA4B/audio/simulcast/hls/nonuk/pc_hd_abr_v2/ak/bbc_radio_fourfm.m3u8",
       "favorite": false
     },
     {
@@ -421,7 +421,7 @@
       "name": "BBC 6 Music",
       "country": "İngiltere",
       "genre": "Alternative",
-      "url": "http://stream.live.vc.bbcmedia.co.uk/bbc_6music",
+      "url": "http://a.files.bbci.co.uk/ms6/live/3441A116-B12E-4D2F-ACA8-C1984642FA4B/audio/simulcast/hls/nonuk/pc_hd_abr_v2/ak/bbc_6music.m3u8",
       "favorite": false
     },
     {
@@ -429,7 +429,7 @@
       "name": "BBC 1Xtra",
       "country": "İngiltere",
       "genre": "Hip Hop/R&B",
-      "url": "http://stream.live.vc.bbcmedia.co.uk/bbc_1xtra",
+      "url": "http://a.files.bbci.co.uk/ms6/live/3441A116-B12E-4D2F-ACA8-C1984642FA4B/audio/simulcast/hls/nonuk/pc_hd_abr_v2/ak/bbc_1xtra.m3u8",
       "favorite": false
     },
     {
@@ -581,7 +581,7 @@
       "name": "Los 40 Principales",
       "country": "İspanya",
       "genre": "Pop/Hits",
-      "url": "https://25633.live.streamtheworld.com/LOS40.mp3",
+      "url": "https://playerservices.streamtheworld.com/api/livestream-redirect/Los40.mp3",
       "favorite": false
     },
     {
@@ -605,7 +605,7 @@
       "name": "ABC Lounge",
       "country": "Fransa",
       "genre": "Lounge/Chillout",
-      "url": "http://ice.stream.frequence3.net/frequence3-128.mp3",
+      "url": "https://frequence3.net-radio.fr/frequence3-128.mp3",
       "favorite": false
     },
     {
@@ -613,7 +613,7 @@
       "name": "Chill Out Zone",
       "country": "İnternet",
       "genre": "Chillout/Lounge",
-      "url": "https://ice2.somafm.com/illstreet-128-mp3",
+      "url": "https://ice1.somafm.com/illstreet-128-mp3",
       "favorite": false
     },
     {
@@ -621,7 +621,7 @@
       "name": "Deep House Radio",
       "country": "İnternet",
       "genre": "Deep House",
-      "url": "https://ice2.somafm.com/deepspaceone-128-mp3",
+      "url": "https://ice1.somafm.com/deepspaceone-128-mp3",
       "favorite": false
     },
     {
@@ -653,15 +653,15 @@
       "name": "Rock FM",
       "country": "İspanya",
       "genre": "Rock/Indie",
-      "url": "http://rockfm.cope.stream.flumotion.com/cope/rockfm/playlist.m3u8",
+      "url": "https://rockfm-cope.flumotion.com/chunks.m3u8",
       "favorite": false
     },
     {
       "id": "us-hard-rock-heaven",
-      "name": "Hard Rock Heaven",
+      "name": "Radio Paradise Rock 128k",
       "country": "ABD",
       "genre": "Rock/Indie",
-      "url": "http://hydra.cdnstream.com/1521_128",
+      "url": "https://stream.radioparadise.com/rock-128",
       "favorite": false
     },
     {
@@ -693,7 +693,7 @@
       "name": "Radio Caroline",
       "country": "İngiltere",
       "genre": "Rock/Indie",
-      "url": "http://sc3.radiocaroline.net:8030/listen.m3u",
+      "url": "http://78.129.202.200:8040/;",
       "favorite": false
     },
     {
