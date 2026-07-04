@@ -93,7 +93,7 @@
       "name": "Kral Pop",
       "country": "Türkiye",
       "genre": "Pop",
-      "url": "https://dygedge2.radyotvonline.net/kralpop/playlist.m3u8",
+      "url": "https://dygedge.radyotvonline.net/kralpop/playlist.m3u8",
       "favorite": false
     },
     {
@@ -157,7 +157,7 @@
       "name": "NTV Radyo",
       "country": "Türkiye",
       "genre": "Haber/Kültür",
-      "url": "https://moondigitaledge.radyotvonline.net/ntvradyo/playlist.m3u8",
+      "url": "https://dygedge.radyotvonline.net/ntvradyo/playlist.m3u8",
       "favorite": false
     },
     {
@@ -225,11 +225,11 @@
       "favorite": false
     },
     {
-      "id": "tr-haberturk",
-      "name": "Habertürk Radyo",
+      "id": "tr-ahaber",
+      "name": "A Haber Radyo",
       "country": "Türkiye",
       "genre": "Haber/Talk",
-      "url": "https://moondigitaledge.radyotvonline.net/haberturkradyo/playlist.m3u8",
+      "url": "https://trkvz-radyolar.ercdn.net/ahaberradyo/playlist.m3u8",
       "favorite": false
     },
     {
