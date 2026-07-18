@@ -706,10 +706,10 @@
     },
     {
       "id": "tr-radyo-kent",
-      "name": "Radyo Fenomen Pop",
+      "name": "Radyo Kent",
       "country": "Türkiye",
       "genre": "Pop/Türkçe",
-      "url": "https://live.radyofenomen.com/fenomenpop/256/chunks.m3u8",
+      "url": "https://dygedge.radyotvonline.net/radyoeksen/playlist.m3u8",
       "favorite": false
     },
     {
@@ -722,10 +722,10 @@
     },
     {
       "id": "world-trt-world",
-      "name": "BBC World Service",
+      "name": "TRT World Radio",
       "country": "World",
       "genre": "News/Talk",
-      "url": "http://stream.live.vc.bbcmedia.co.uk/bbc_world_service",
+      "url": "https://radio-trtworld.medya.trt.com.tr/master.m3u8",
       "favorite": false
     }
   ]
